@@ -1,0 +1,8 @@
+html, body, #drawing{
+	width:500px;
+	height:500px;
+}
+
+#drawing {
+	border: 1px solid green;
+}
