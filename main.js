@@ -1,123 +1,183 @@
 var canvas = SVG().addTo("#drawing").size("100%", "100%");
 
-function rune(
-	center,
-	r,
-	th,
-	text,
-	gon,
-	ngon_enable = 0,
-	mini_ngon_enable = 0,
-	skip_two_enable = 0,
-	star_enable = 0,
-	center_line_enable = 0,
-	circle_enable = 0
-) {
-	canvas.clear();
+const runes = [
+	"ᚡ",
+	"ᚢ",
+	"ᚣ",
+	"ᚤ",
+	"ᚥ",
+	"ᚦ",
+	"ᚧ",
+	"ᚨ",
+	"ᚩ",
+	"ᚪ",
+	"ᚫ",
+	"ᚬ",
+	"ᚭ",
+	"ᚮ",
+	"ᚯ",
+	"ᚰ",
+	"ᚱ",
+	"ᚳ",
+	"ᚴ",
+	"ᚵ",
+	"ᚶ",
+	"ᚸ",
+	"ᚹ",
+	"ᚺ",
+	"ᚻ",
+	"ᚼ",
+	"ᚽ",
+	"ᚾ",
+	"ᚿ",
+	"ᛀ",
+	"ᛂ",
+	"ᛃ",
+	"ᛄ",
+	"ᛅ",
+	"ᛆ",
+	"ᛇ",
+	"ᛈ",
+	"ᛉ",
+	"ᛊ",
+	"ᛋ",
+	"ᛍ",
+	"ᛎ",
+	"ᛏ",
+	"ᛐ",
+	"ᛑ",
+	"ᛒ",
+	"ᛓ",
+	"ᛔ",
+	"ᛗ",
+	"ᛘ",
+	"ᛙ",
+	"ᛚ",
+	"ᛛ",
+	"ᛜ",
+	"ᛝ",
+	"ᛞ",
+	"ᛟ",
+	"ᛠ",
+	"ᛡ",
+	"ᛢ",
+	"ᛣ",
+	"ᛤ",
+	"ᛥ",
+	"ᛦ",
+	"ᛧ",
+	"ᛨ",
+	"ᛩ",
+	"ᛪ",
+	"᛫",
+	"ᛮ",
+	"ᛯ",
+	"ᛰ"
+];
 
-	if (ngon_enable)
-		draw_ngon(r - th, gon, (origin = center)).forEach((point) =>
-			canvas
-				.line(point.x1, point.y1, point.x2, point.y2)
-				.stroke({ width: 3, color: "black" })
-				.rotate(180 / gon, center.cx, center.cy)
-		);
+function random_runes(length) {
+	return [...new Array(length)].map(() => Math.round(Math.random() * runes.length)).map((i) => runes[i]);
+}
 
-	if (mini_ngon_enable)
-		draw_ngon(r - th, gon, (origin = center)).forEach((point) =>
-			canvas
-				.line(point.x1, point.y1, point.x2, point.y2)
-				.stroke({ width: 3, color: "black" })
-				.rotate(0, center.cx, center.cy)
-		);
+/*
+center: cx, cy: 
+outer ring: radius, thickness, text, gon;
+mini rings: radius, glyphs: [];
+*/
 
-	if (skip_two_enable)
-		draw_skip_two(r - th, gon, (origin = center)).forEach((point) =>
-			canvas
-				.line(point.x1, point.y1, point.x2, point.y2)
-				.stroke({ width: 3, color: "black" })
-				.rotate((180 / gon) * 2, center.cx, center.cy)
-		);
+function rune(center, outer_ring, mini_rings) {
+	//canvas.clear();
 
-	function ring(text, r, th) {
+	function text_circle(text, radius, fontSettings = {}) {
+		return canvas
+			.textPath(`${text}`, generate_circle_path(radius, (origin = center)))
+			.font(fontSettings)
+			.attr("textLength", `${2 * radius * Math.PI}`);
+	}
+
+	function ring_border(radius, origin = { cx: 0, cy: 0 }) {
+		return canvas
+			.circle(2 * radius)
+			.stroke({ width: 3, color: "black" })
+			.fill("transparent")
+			.move(origin.cx - radius, origin.cy - radius);
+	}
+
+	function ring(text, radius, th, origin = { cx: 0, cy: 0 }) {
 		const white_ring = canvas
-			.circle(2 * r - th)
+			.circle(2 * radius - th)
 			.stroke({ width: th, color: "white" })
 			.fill("transparent")
 			.move(th, th)
-			.move(center.cx - (r - th / 2), center.cy - (r - th / 2));
+			.move(origin.cx - (radius - th / 2), origin.cy - (radius - th / 2));
 
-		const border1 = canvas
-			.circle(2 * r)
-			.stroke({ width: 3, color: "black" })
-			.fill("transparent")
-			.move(center.cx - r, center.cy - r);
-		const border2 = canvas
-			.circle(2 * r - 2 * th)
-			.stroke({ width: 3, color: "black" })
-			.fill("transparent")
-			.move(th, th)
-			.move(center.cx - (r - th), center.cy - (r - th));
+		ring_border(radius, origin);
+		ring_border(radius - th, origin);
 
-		const text_ring = canvas
-			.textPath(`${text}`, generate_circle_path(r, (origin = center)))
-			.font({ weight: "bold" })
-			.attr("textLength", `${2 * r * Math.PI}`);
+		text_circle(text, radius, { weight: "bold" });
 	}
 
-	function text_circle(text, r, th) {
-		const c = canvas
-			.textPath(`${text}`, generate_circle_path(r - (2 * th) / 2, (origin = center)))
-			.font({ size: 50 })
-			.font({ weight: "bold" })
-			.attr("textLength", `${2 * (r - th) * Math.PI}`);
+	function line(point) {
+		return canvas.line(point.x1, point.y1, point.x2, point.y2).stroke({ width: 3, color: "black" });
 	}
 
-	ring(text, r, th);
+	function glyph(letter, point, letterSettings = {}, origin = { cx: 0, cy: 0 }) {
+		const text = canvas.text(letter.at(0)).font(letterSettings);
+		const { width, height } = text.node.getBBox();
+		text.move(point.x + center.cx - width / 2, point.y + center.cy - height / 2);
+	}
 
-	if (star_enable)
-		draw_star(r - th, gon, (origin = center)).forEach((point) =>
-			canvas.line(point.x1, point.y1, point.x2, point.y2).stroke({ width: 3, color: "black" })
+	function circle(radius, point, origin = { cx: 0, cy: 0 }) {
+		return canvas
+			.circle(radius * 2)
+			.move(point.x + origin.cx - radius, point.y + origin.cy - radius)
+			.fill("white")
+			.stroke({ width: 3, color: "black" });
+	}
+
+	{
+		const { radius, thickness, text, glyph_radius, glyphs, gon } = outer_ring;
+		ring(text, radius, thickness, (origin = center));
+
+		ngon(radius - thickness, gon, (origin = center)).forEach((point) =>
+			line(point).rotate(180 / gon, center.cx, center.cy)
+		);
+		ngon(radius - thickness, gon, (origin = center)).forEach((point) =>
+			line(point).rotate(0, center.cx, center.cy)
+		);
+		ngon(radius - thickness, gon / 2, (origin = center)).forEach((point) =>
+			line(point).rotate(360 / gon, center.cx, center.cy)
 		);
 
-	if (center_line_enable)
-		draw_center_line(r - th, gon, (origin = center)).forEach((point) =>
-			canvas
-				.line(point.x1, point.y1, point.x2, point.y2)
-				.stroke({ width: 3, color: "black" })
-				.rotate(180 / gon, center.cx, center.cy)
+		star(radius - thickness, gon, (origin = center)).forEach((point) => line(point));
+
+		centers(radius - thickness, gon, (origin = center)).forEach((point) =>
+			line(point).rotate(180 / gon, center.cx, center.cy)
 		);
 
-	if (circle_enable)
-		approx_circle(r - th + th / 2, gon, (origin = center)).forEach((point) => {
-			d = 100;
-			canvas
-				.circle(d)
-				.move(point.x + center.cx - d / 2, point.y + center.cy - d / 2)
-				.fill("white")
-				.stroke({ width: 3, color: "black" });
+		text_circle(glyphs.join(" "), glyph_radius, { size: 50, weight: "bold" });
+	}
 
-			const text = canvas.text("A").font({ size: 50 });
-
-			const { width, height } = text.node.getBBox();
-			text.move(point.x + center.cx - width / 2, point.y + center.cy - height / 2);
-		});
-
-	ring("dupa trupa zakupy i chuj", 140, 40);
-
-	text_circle("A B C D E F G H .", 250, 10);
+	//circle_points(r - th / 2, gon, (origin = center)).forEach((point) => {
+	//	circle(50, point, (origin = center));
+	//	glyph("A", point, { size: 50 }, (orign = origin));
+	//});
 }
 
 rune(
 	{ cx: 350, cy: 350 },
-	300,
-	30,
-	"very long banana words dupa image fill move canvas circle oh my god it is longer wtf very long banana words dupa image fill move canvas circle oh my god it is longer wtf",
-	8,
-	1,
-	1,
-	1,
-	1,
-	1,
-	1
+	{
+		radius: 300,
+		thickness: 30,
+		text: "very long banana words dupa image fill move canvas circle oh my god it is longer wtf very long banana words dupa image fill move canvas circle oh my god it is longer wtf",
+		glyph_radius: 260,
+		glyphs: random_runes(8),
+		gon: 8
+	},
+	{}
+);
+
+rune(
+	{ cx: 350, cy: 350 },
+	{ radius: 140, thickness: 30, text: "chuj dupa i kamieni kupa", glyph_radius: 100, glyphs: random_runes(8), gon: 6 }
 );

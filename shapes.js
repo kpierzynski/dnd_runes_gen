@@ -1,4 +1,4 @@
-function approx_circle(r, point_count) {
+function circle_points(r, point_count) {
 	const step = (2 * Math.PI) / point_count;
 	const rotate = (3 * Math.PI) / 2;
 
@@ -9,8 +9,9 @@ function approx_circle(r, point_count) {
 
 	return result;
 }
-function draw_ngon(r, gon, origin = { cx: 0, cy: 0 }) {
-	const ring = approx_circle(r, gon);
+
+function ngon(r, gon, origin = { cx: 0, cy: 0 }) {
+	const ring = circle_points(r, gon);
 	const { cx, cy } = origin;
 
 	let result = [];
@@ -23,8 +24,8 @@ function draw_ngon(r, gon, origin = { cx: 0, cy: 0 }) {
 	return result;
 }
 
-function draw_star(r, gon, origin = { cx: 0, cy: 0 }) {
-	const ring = approx_circle(r, gon);
+function star(r, gon, origin = { cx: 0, cy: 0 }) {
+	const ring = circle_points(r, gon);
 	const len = ring.length;
 	const { cx, cy } = origin;
 
@@ -39,22 +40,8 @@ function draw_star(r, gon, origin = { cx: 0, cy: 0 }) {
 	return result;
 }
 
-function draw_skip_two(r, gon, origin = { cx: 0, cy: 0 }) {
-	const ring = approx_circle(r, gon / 2);
-	const { cx, cy } = origin;
-
-	let result = [];
-	for (let i = 0; i < ring.length; i++) {
-		const { x, y } = ring[i];
-		const { x: xn, y: yn } = ring[(i + 1) % ring.length];
-		result.push({ x1: x + cx, y1: y + cy, x2: xn + cx, y2: yn + cy });
-	}
-
-	return result;
-}
-
-function draw_center_line(r, gon, origin = { cx: 0, cy: 0 }) {
-	const ring = approx_circle(r, gon);
+function centers(r, gon, origin = { cx: 0, cy: 0 }) {
+	const ring = circle_points(r, gon);
 	const len = ring.length;
 	const { cx, cy } = origin;
 
