@@ -1,121 +1,9 @@
 var canvas = SVG().addTo("#drawing").size("100%", "100%");
 
-radius = 223;
-
-const center = { x: 350, y: 350 };
-
-function polar2cart(r, angle) {
-	return { x: r * Math.cos(angle), y: r * Math.sin(angle) };
-}
-
-function deg2rad(deg) {
-	return (Math.PI * deg) / 180;
-}
-
-function approx_circle(r, point_count) {
-	const step = (2 * Math.PI) / point_count;
-	const result = [];
-
-	for (let i = 0; i < point_count; i++) {
-		result.push(polar2cart(r, (3 * Math.PI) / 2 + i * step));
-	}
-
-	return result;
-}
-
-function generate_circle_path(r, origin = { x: center.x, y: center.y }) {
-	const { x, y } = origin;
-	return `M ${x},${y} m ${-r} 0 a ${r}, ${r} 0 1,0 ${2 * r},0 a ${r},${r} 0 1,0 ${-2 * r},0`;
-}
-
-function draw_ngon(r, gon, origin = { cx: center.x, cy: center.y }) {
-	const ring = approx_circle(r, gon);
-	const { cx, cy } = origin;
-
-	let result = [];
-
-	for (let i = 0; i < ring.length; i++) {
-		const { x, y } = ring[i];
-		const { x: xn, y: yn } = ring[(i + 1) % ring.length];
-		result.push({ x1: x, y1: y, x2: xn, y2: yn });
-	}
-
-	result = result.map((item) => {
-		return {
-			x1: item.x1 + cx,
-			y1: item.y1 + cy,
-			x2: item.x2 + cx,
-			y2: item.y2 + cy
-		};
-	});
-
-	return result;
-}
-
-function draw_star(r, gon, origin = { cx: center.x, cy: center.y }) {
-	const ring = approx_circle(r, gon);
-	const { cx, cy } = origin;
-	const len = ring.length;
-
-	let result = [];
-	for (let i = 0; i < len - 1; i++) {
-		for (let k = i + 2; k < len; k++) {
-			if (Math.abs(i - k) % (len - 1) === 0) continue;
-			result.push({ x1: ring[i].x, y1: ring[i].y, x2: ring[k].x, y2: ring[k].y });
-		}
-	}
-
-	result = result.map((item) => {
-		return {
-			x1: item.x1 + cx,
-			y1: item.y1 + cy,
-			x2: item.x2 + cx,
-			y2: item.y2 + cy
-		};
-	});
-
-	return result;
-}
-
-function draw_skip_two(r, gon, origin = { cx: center.x, cy: center.y }) {
-	const ring = approx_circle(r, gon / 2);
-	const { cx, cy } = origin;
-
-	let result = [];
-
-	for (let i = 0; i < ring.length; i++) {
-		const { x, y } = ring[i];
-		const { x: xn, y: yn } = ring[(i + 1) % ring.length];
-		result.push({ x1: x, y1: y, x2: xn, y2: yn });
-	}
-
-	result = result.map((item) => {
-		return {
-			x1: item.x1 + cx,
-			y1: item.y1 + cy,
-			x2: item.x2 + cx,
-			y2: item.y2 + cy
-		};
-	});
-
-	return result;
-}
-
-function draw_center_line(r, gon, origin = { cx: center.x, cy: center.y }) {
-	const ring = approx_circle(r, gon);
-	const { cx, cy } = origin;
-	const len = ring.length;
-
-	let result = [];
-
-	for (let i = 0; i < len; i++) {
-		result.push({ x1: cx, y1: cy, x2: ring[i].x + cx, y2: ring[i].y + cy });
-	}
-
-	return result;
-}
-
 function rune(
+	center,
+	r,
+	th,
 	text,
 	gon,
 	ngon_enable = 0,
@@ -127,83 +15,109 @@ function rune(
 ) {
 	canvas.clear();
 
-	let r = 230;
 	if (ngon_enable)
-		draw_ngon(r, gon).forEach((point) =>
+		draw_ngon(r - th, gon, (origin = center)).forEach((point) =>
 			canvas
 				.line(point.x1, point.y1, point.x2, point.y2)
-				.stroke({ width: 1, color: "gray" })
-				.rotate(360 / gon / 2, center.x, center.y)
+				.stroke({ width: 3, color: "black" })
+				.rotate(180 / gon, center.cx, center.cy)
 		);
 
-	r = r * Math.cos(deg2rad(180 / gon));
 	if (mini_ngon_enable)
-		draw_ngon(r, gon).forEach((point) =>
+		draw_ngon(r - th, gon, (origin = center)).forEach((point) =>
 			canvas
 				.line(point.x1, point.y1, point.x2, point.y2)
-				.stroke({ width: 1, color: "gray" })
-				.rotate(0, center.x, center.y)
+				.stroke({ width: 3, color: "black" })
+				.rotate(0, center.cx, center.cy)
 		);
 
-	//r = r * Math.cos(deg2rad(180 / gon));
 	if (skip_two_enable)
-		if (gon % 2 === 0)
-			draw_skip_two(r, gon).forEach((point) =>
-				canvas
-					.line(point.x1, point.y1, point.x2, point.y2)
-					.stroke({ width: 1, color: "gray" })
-					.rotate((180 / gon) * 2, center.x, center.y)
-			);
+		draw_skip_two(r - th, gon, (origin = center)).forEach((point) =>
+			canvas
+				.line(point.x1, point.y1, point.x2, point.y2)
+				.stroke({ width: 3, color: "black" })
+				.rotate((180 / gon) * 2, center.cx, center.cy)
+		);
 
 	function ring(text, r, th) {
-		const a = canvas
-			.circle(2 * r)
-			.stroke("gray")
-			.fill("white")
-			.move(center.x - r, center.y - r);
-		const b = canvas
-			.circle(2 * r - 2 * th)
-			.stroke("gray")
+		const white_ring = canvas
+			.circle(2 * r - th)
+			.stroke({ width: th, color: "white" })
 			.fill("transparent")
 			.move(th, th)
-			.move(center.x - (r - th), center.y - (r - th));
+			.move(center.cx - (r - th / 2), center.cy - (r - th / 2));
+
+		const border1 = canvas
+			.circle(2 * r)
+			.stroke({ width: 3, color: "black" })
+			.fill("transparent")
+			.move(center.cx - r, center.cy - r);
+		const border2 = canvas
+			.circle(2 * r - 2 * th)
+			.stroke({ width: 3, color: "black" })
+			.fill("transparent")
+			.move(th, th)
+			.move(center.cx - (r - th), center.cy - (r - th));
+
+		const text_ring = canvas
+			.textPath(`${text}`, generate_circle_path(r, (origin = center)))
+			.font({ weight: "bold" })
+			.attr("textLength", `${2 * r * Math.PI}`);
+	}
+
+	function text_circle(text, r, th) {
 		const c = canvas
-			.textPath(`${text}`, generate_circle_path(r - (3 * th) / 2))
+			.textPath(`${text}`, generate_circle_path(r - (2 * th) / 2, (origin = center)))
+			.font({ size: 50 })
+			.font({ weight: "bold" })
 			.attr("textLength", `${2 * (r - th) * Math.PI}`);
 	}
 
-	ring(text, 250, 20);
+	ring(text, r, th);
 
-	//r = r * Math.cos(deg2rad(180 / gon));
 	if (star_enable)
-		draw_star(r, gon).forEach((point) =>
-			canvas.line(point.x1, point.y1, point.x2, point.y2).stroke({ width: 1, color: "gray" })
+		draw_star(r - th, gon, (origin = center)).forEach((point) =>
+			canvas.line(point.x1, point.y1, point.x2, point.y2).stroke({ width: 3, color: "black" })
 		);
 
 	if (center_line_enable)
-		draw_center_line(230, gon).forEach((point) =>
+		draw_center_line(r - th, gon, (origin = center)).forEach((point) =>
 			canvas
 				.line(point.x1, point.y1, point.x2, point.y2)
-				.stroke({ width: 1, color: "gray" })
-				.rotate(180 / gon, center.x, center.y)
+				.stroke({ width: 3, color: "black" })
+				.rotate(180 / gon, center.cx, center.cy)
 		);
 
 	if (circle_enable)
-		approx_circle(240, gon).forEach((point) => {
-			d = 75;
+		approx_circle(r - th + th / 2, gon, (origin = center)).forEach((point) => {
+			d = 100;
 			canvas
 				.circle(d)
-				.move(point.x + center.x - d / 2, point.y + center.y - d / 2)
+				.move(point.x + center.cx - d / 2, point.y + center.cy - d / 2)
 				.fill("white")
-				.stroke({ width: 1, color: "gray" });
+				.stroke({ width: 3, color: "black" });
 
-			const text = canvas.text("A");
-			const width = text.length();
-			const height = text.node.clientHeight;
-			text.move(point.x + center.x - width / 2, point.y + center.y - height / 2);
+			const text = canvas.text("A").font({ size: 50 });
+
+			const { width, height } = text.node.getBBox();
+			text.move(point.x + center.cx - width / 2, point.y + center.cy - height / 2);
 		});
 
-	ring("dupa trupa zakupy i chuj", 140, 20);
+	ring("dupa trupa zakupy i chuj", 140, 40);
+
+	text_circle("A B C D E F G H .", 250, 10);
 }
 
-rune("very long banana words dupa image fill move canvas circle oh my god it is longer wtf ", 8, 1, 1, 1, 1, 1, 1);
+rune(
+	{ cx: 350, cy: 350 },
+	300,
+	30,
+	"very long banana words dupa image fill move canvas circle oh my god it is longer wtf very long banana words dupa image fill move canvas circle oh my god it is longer wtf",
+	8,
+	1,
+	1,
+	1,
+	1,
+	1,
+	1
+);
