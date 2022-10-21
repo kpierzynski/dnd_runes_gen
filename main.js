@@ -79,24 +79,18 @@ function random_runes(length) {
 	return [...new Array(length)].map(() => Math.round(Math.random() * runes.length)).map((i) => runes[i]);
 }
 
-/*
-center: cx, cy: 
-outer ring: radius, thickness, text, gon;
-mini rings: radius, glyphs: [];
-*/
-
 function rune(center, outer_ring, mini_rings) {
-	//canvas.clear();
+	const drawer = canvas.group();
 
 	function text_circle(text, radius, fontSettings = {}) {
-		return canvas
+		return drawer
 			.textPath(`${text}`, generate_circle_path(radius, (origin = center)))
 			.font(fontSettings)
 			.attr("textLength", `${2 * radius * Math.PI}`);
 	}
 
 	function ring_border(radius, origin = { cx: 0, cy: 0 }) {
-		return canvas
+		return drawer
 			.circle(2 * radius)
 			.stroke({ width: 3, color: "black" })
 			.fill("transparent")
@@ -104,7 +98,7 @@ function rune(center, outer_ring, mini_rings) {
 	}
 
 	function ring(text, radius, th, origin = { cx: 0, cy: 0 }) {
-		const white_ring = canvas
+		const white_ring = drawer
 			.circle(2 * radius - th)
 			.stroke({ width: th, color: "white" })
 			.fill("transparent")
@@ -118,17 +112,17 @@ function rune(center, outer_ring, mini_rings) {
 	}
 
 	function line(point) {
-		return canvas.line(point.x1, point.y1, point.x2, point.y2).stroke({ width: 3, color: "black" });
+		return drawer.line(point.x1, point.y1, point.x2, point.y2).stroke({ width: 3, color: "black" });
 	}
 
 	function glyph(letter, point, letterSettings = {}, origin = { cx: 0, cy: 0 }) {
-		const text = canvas.text(letter.at(0)).font(letterSettings);
+		const text = drawer.text(letter.at(0)).font(letterSettings);
 		const { width, height } = text.node.getBBox();
 		text.move(point.x + center.cx - width / 2, point.y + center.cy - height / 2);
 	}
 
 	function circle(radius, point, origin = { cx: 0, cy: 0 }) {
-		return canvas
+		return drawer
 			.circle(radius * 2)
 			.move(point.x + origin.cx - radius, point.y + origin.cy - radius)
 			.fill("white")
@@ -149,35 +143,53 @@ function rune(center, outer_ring, mini_rings) {
 			line(point).rotate(360 / gon, center.cx, center.cy)
 		);
 
-		star(radius - thickness, gon, (origin = center)).forEach((point) => line(point));
+		//star(radius - thickness, gon, (origin = center)).forEach((point) => line(point));
 
 		centers(radius - thickness, gon, (origin = center)).forEach((point) =>
 			line(point).rotate(180 / gon, center.cx, center.cy)
 		);
 
 		text_circle(glyphs.join(" "), glyph_radius, { size: 50, weight: "bold" });
-	}
 
-	//circle_points(r - th / 2, gon, (origin = center)).forEach((point) => {
-	//	circle(50, point, (origin = center));
-	//	glyph("A", point, { size: 50 }, (orign = origin));
-	//});
+		if (!mini_rings) return;
+
+		if (Array.isArray(mini_rings)) {
+			circle_points(radius - thickness / 2, mini_rings.length, (origin = center)).forEach((point, i) => {
+				//rune({ cx: point.x + center.cx, cy: point.y + center.cy }, mini_rings[i]);
+				mini_rings[i].dmove(point.x, point.y);
+			});
+		} else if (typeof mini_rings === "object") {
+			circle_points(radius - thickness / 2, gon, (origin = center)).forEach((point) => {
+				circle(30, point, (origin = center));
+				glyph("A", point, { size: 30 }, (orign = origin));
+			});
+		}
+	}
+	return drawer;
 }
 
-rune(
+a = rune(
 	{ cx: 350, cy: 350 },
 	{
-		radius: 300,
+		radius: 140,
 		thickness: 30,
-		text: "very long banana words dupa image fill move canvas circle oh my god it is longer wtf very long banana words dupa image fill move canvas circle oh my god it is longer wtf",
-		glyph_radius: 260,
+		text: "chuj dupa i kamieni kupa",
+		glyph_radius: 100,
 		glyphs: random_runes(8),
-		gon: 8
+		gon: 6
 	},
 	{}
 );
 
 rune(
 	{ cx: 350, cy: 350 },
-	{ radius: 140, thickness: 30, text: "chuj dupa i kamieni kupa", glyph_radius: 100, glyphs: random_runes(8), gon: 6 }
+	{
+		radius: 300,
+		thickness: 30,
+		text: "very long banana words dupa image fill move canvas circle oh my",
+		glyph_radius: 260,
+		glyphs: random_runes(24),
+		gon: 8
+	},
+	[a]
 );
