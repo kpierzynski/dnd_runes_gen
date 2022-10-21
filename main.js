@@ -79,117 +79,249 @@ function random_runes(length) {
 	return [...new Array(length)].map(() => Math.round(Math.random() * runes.length)).map((i) => runes[i]);
 }
 
-function rune(center, outer_ring, mini_rings) {
+function rune({ center, ring: big_ring, glyph: inner_glyph, planets }) {
 	const drawer = canvas.group();
 
-	function text_circle(text, radius, fontSettings = {}) {
+	function text_circle(text, radius, fontSettings = {}, origin = { cx: 0, cy: 0 }) {
 		return drawer
-			.textPath(`${text}`, generate_circle_path(radius, (origin = center)))
+			.textPath(`${text}`, generate_circle_path(radius, (origin = origin)))
 			.font(fontSettings)
 			.attr("textLength", `${2 * radius * Math.PI}`);
 	}
 
-	function ring_border(radius, origin = { cx: 0, cy: 0 }) {
+	function ring_border(radius, settings = {}, origin = { cx: 0, cy: 0 }) {
 		return drawer
 			.circle(2 * radius)
-			.stroke({ width: 3, color: "black" })
+			.stroke({ width: 3, color: "black", ...settings })
 			.fill("transparent")
 			.move(origin.cx - radius, origin.cy - radius);
 	}
 
-	function ring(text, radius, th, origin = { cx: 0, cy: 0 }) {
+	function ring(text, radius, th, settings = {}, origin = { cx: 0, cy: 0 }) {
 		const white_ring = drawer
 			.circle(2 * radius - th)
 			.stroke({ width: th, color: "white" })
-			.fill("transparent")
-			.move(th, th)
+			.fill("white")
 			.move(origin.cx - (radius - th / 2), origin.cy - (radius - th / 2));
 
-		ring_border(radius, origin);
-		ring_border(radius - th, origin);
+		ring_border(radius, (settings = settings), (origin = origin));
+		ring_border(radius - th, (settings = settings), (origin = origin));
 
-		text_circle(text, radius, { weight: "bold" });
+		text_circle(text, radius, { weight: "bold" }, (origin = origin));
 	}
 
-	function line(point) {
-		return drawer.line(point.x1, point.y1, point.x2, point.y2).stroke({ width: 3, color: "black" });
+	function line(point, settings = {}) {
+		return drawer.line(point.x1, point.y1, point.x2, point.y2).stroke({ width: 3, color: "black", ...settings });
 	}
 
 	function glyph(letter, point, letterSettings = {}, origin = { cx: 0, cy: 0 }) {
 		const text = drawer.text(letter.at(0)).font(letterSettings);
 		const { width, height } = text.node.getBBox();
-		text.move(point.x + center.cx - width / 2, point.y + center.cy - height / 2);
+		text.move(point.x + origin.cx - width / 2, point.y + origin.cy - height / 2);
 	}
 
-	function circle(radius, point, origin = { cx: 0, cy: 0 }) {
+	function circle(radius, point, settings = {}, origin = { cx: 0, cy: 0 }) {
 		return drawer
 			.circle(radius * 2)
 			.move(point.x + origin.cx - radius, point.y + origin.cy - radius)
 			.fill("white")
-			.stroke({ width: 3, color: "black" });
+			.stroke({ width: 3, color: "black", ...settings });
 	}
 
 	{
-		const { radius, thickness, text, glyph_radius, glyphs, gon } = outer_ring;
-		ring(text, radius, thickness, (origin = center));
+		let { radius, thickness, text, gon, line: line_settings, settings } = big_ring;
+		const { polygon, second_polygon, depleted_polygon, star_lines, center_lines } = settings;
 
-		ngon(radius - thickness, gon, (origin = center)).forEach((point) =>
-			line(point).rotate(180 / gon, center.cx, center.cy)
-		);
-		ngon(radius - thickness, gon, (origin = center)).forEach((point) =>
-			line(point).rotate(0, center.cx, center.cy)
-		);
-		ngon(radius - thickness, gon / 2, (origin = center)).forEach((point) =>
-			line(point).rotate(360 / gon, center.cx, center.cy)
-		);
+		ring(text, radius, thickness, (settings = line_settings), (origin = center));
 
-		//star(radius - thickness, gon, (origin = center)).forEach((point) => line(point));
+		if (polygon)
+			ngon(radius - thickness, gon, (origin = center)).forEach((point) =>
+				line(point, line_settings).rotate(180 / gon, center.cx, center.cy)
+			);
+		if (second_polygon)
+			ngon(radius - thickness, gon, (origin = center)).forEach((point) =>
+				line(point, line_settings).rotate(0, center.cx, center.cy)
+			);
+		if (depleted_polygon)
+			ngon(radius - thickness, gon / 2, (origin = center)).forEach((point) =>
+				line(point, line_settings).rotate(360 / gon, center.cx, center.cy)
+			);
 
-		centers(radius - thickness, gon, (origin = center)).forEach((point) =>
-			line(point).rotate(180 / gon, center.cx, center.cy)
-		);
+		if (star_lines) star(radius - thickness, gon, (origin = center)).forEach((point) => line(point, line_settings));
 
-		text_circle(glyphs.join(" "), glyph_radius, { size: 50, weight: "bold" });
+		if (center_lines)
+			centers(radius - thickness, gon, (origin = center)).forEach((point) =>
+				line(point, line_settings).rotate(180 / gon, center.cx, center.cy)
+			);
+	}
 
-		if (!mini_rings) return;
+	if (inner_glyph) {
+		const { radius, glyphs, settings } = inner_glyph;
+		text_circle(glyphs.join(" "), radius, settings, (origin = center));
+	}
 
-		if (Array.isArray(mini_rings)) {
-			circle_points(radius - thickness / 2, mini_rings.length, (origin = center)).forEach((point, i) => {
-				//rune({ cx: point.x + center.cx, cy: point.y + center.cy }, mini_rings[i]);
-				mini_rings[i].dmove(point.x, point.y);
+	{
+		if (Array.isArray(planets)) {
+			circle_points(big_ring.radius, planets.length).forEach((point, i) => {
+				rune({ ...planets[i], center: { cx: point.x + center.cx, cy: point.y + center.cy } });
 			});
-		} else if (typeof mini_rings === "object") {
-			circle_points(radius - thickness / 2, gon, (origin = center)).forEach((point) => {
-				circle(30, point, (origin = center));
-				glyph("A", point, { size: 30 }, (orign = origin));
+		} else if (typeof planets === "object") {
+			const { radius, glyphs, planet_radius, glyph_size } = planets;
+			circle_points(radius, glyphs.length).forEach((point, i) => {
+				circle(planet_radius, point, (settings = {}), (origin = center));
+				glyph(glyphs[i], point, (letterSettings = { size: glyph_size }), (orign = center));
 			});
 		}
 	}
+
 	return drawer;
 }
 
-a = rune(
-	{ cx: 350, cy: 350 },
-	{
-		radius: 140,
-		thickness: 30,
-		text: "chuj dupa i kamieni kupa",
-		glyph_radius: 100,
-		glyphs: random_runes(8),
-		gon: 6
-	},
-	{}
-);
-
-rune(
-	{ cx: 350, cy: 350 },
-	{
+rune({
+	center: { cx: 450, cy: 450 },
+	ring: {
 		radius: 300,
 		thickness: 30,
-		text: "very long banana words dupa image fill move canvas circle oh my",
-		glyph_radius: 260,
-		glyphs: random_runes(24),
-		gon: 8
+		text: "very long banana words dupa image fill move canvas circle oh my very long banana words dupa image fill move canvas circle oh my very long banana words dupa image fill move canvas circle oh my",
+		gon: 8,
+		settings: {
+			polygon: true,
+			second_polygon: true,
+			depleted_polygon: false,
+			star_lines: false,
+			center_lines: true
+		},
+		line: {
+			width: 2
+		}
 	},
-	[a]
-);
+	glyph: {
+		radius: 200,
+		glyphs: random_runes(24),
+		settings: {
+			size: 50
+		}
+	},
+	planets: [
+		{
+			ring: {
+				radius: 100,
+				thickness: 30,
+				text: "very long banana words dupa image fill move canvas circle oh my very long banana words",
+				gon: 6,
+				settings: {
+					polygon: true,
+					second_polygon: true,
+					depleted_polygon: false,
+					star_lines: false,
+					center_lines: true
+				},
+				line: {
+					width: 2
+				}
+			},
+			planets: {
+				glyphs: random_runes(6),
+				radius: 85,
+				planet_radius: 25,
+				glyph_size: 20
+			}
+		},
+		{
+			ring: {
+				radius: 100,
+				thickness: 30,
+				text: "very long banana words dupa image fill move canvas circle oh my very long banana words",
+				gon: 6,
+				settings: {
+					polygon: true,
+					second_polygon: true,
+					depleted_polygon: false,
+					star_lines: false,
+					center_lines: true
+				},
+				line: {
+					width: 2
+				}
+			},
+			planets: {
+				glyphs: random_runes(6),
+				radius: 85,
+				planet_radius: 25,
+				glyph_size: 20
+			}
+		},
+		{
+			ring: {
+				radius: 100,
+				thickness: 30,
+				text: "very long banana words dupa image fill move canvas circle oh my very long banana words",
+				gon: 6,
+				settings: {
+					polygon: true,
+					second_polygon: true,
+					depleted_polygon: false,
+					star_lines: false,
+					center_lines: true
+				},
+				line: {
+					width: 2
+				}
+			},
+			planets: {
+				glyphs: random_runes(6),
+				radius: 85,
+				planet_radius: 25,
+				glyph_size: 20
+			}
+		},
+		{
+			ring: {
+				radius: 100,
+				thickness: 30,
+				text: "very long banana words dupa image fill move canvas circle oh my very long banana words",
+				gon: 6,
+				settings: {
+					polygon: true,
+					second_polygon: true,
+					depleted_polygon: false,
+					star_lines: false,
+					center_lines: true
+				},
+				line: {
+					width: 2
+				}
+			},
+			planets: {
+				glyphs: random_runes(6),
+				radius: 85,
+				planet_radius: 25,
+				glyph_size: 20
+			}
+		},
+		{
+			ring: {
+				radius: 100,
+				thickness: 30,
+				text: "very long banana words dupa image fill move canvas circle oh my very long banana words",
+				gon: 6,
+				settings: {
+					polygon: true,
+					second_polygon: true,
+					depleted_polygon: false,
+					star_lines: false,
+					center_lines: true
+				},
+				line: {
+					width: 2
+				}
+			},
+			planets: {
+				glyphs: random_runes(6),
+				radius: 85,
+				planet_radius: 25,
+				glyph_size: 20
+			}
+		}
+	]
+});
