@@ -3,6 +3,16 @@ html, body, #drawing{
 	height:900px;
 }
 
+.container {
+	display: flex;
+}
+
 #drawing {
 	border: 1px solid green;
+}
+
+#ui {
+	border: 1px solid blue;
+	height: 900px;
+
 }

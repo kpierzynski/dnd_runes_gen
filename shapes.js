@@ -1,54 +1,35 @@
-function circle_points(r, point_count) {
-	const step = (2 * Math.PI) / point_count;
-	const rotate = (3 * Math.PI) / 2;
+function draw_ring(drawer, { radius, thickness }) {
+	const group = drawer.group();
 
-	const result = [];
-	for (let i = 0; i < point_count; i++) {
-		result.push(polar2cart(r, rotate + i * step));
-	}
+	const ring = group
+		.circle(2 * radius - thickness / 2)
+		.stroke({ width: thickness, color: "white" })
+		.fill("transparent")
+		.dmove(-radius, -radius);
 
-	return result;
+	const circle = draw_circle(group, { radius: radius - thickness });
+	const circle2 = draw_circle(group, { radius: radius });
+
+	return group;
 }
 
-function ngon(r, gon, origin = { cx: 0, cy: 0 }) {
-	const ring = circle_points(r, gon);
-	const { cx, cy } = origin;
+function draw_circle(drawer, { radius }) {
+	const circle = drawer
+		.circle(2 * radius)
+		.stroke({ width: 3, color: "black" })
+		.fill("transparent")
+		.dmove(-radius, -radius);
 
-	let result = [];
-	for (let i = 0; i < ring.length; i++) {
-		const { x, y } = ring[i];
-		const { x: xn, y: yn } = ring[(i + 1) % ring.length];
-		result.push({ x1: x + cx, y1: y + cy, x2: xn + cx, y2: yn + cy });
-	}
-
-	return result;
+	return circle;
 }
 
-function star(r, gon, origin = { cx: 0, cy: 0 }) {
-	const ring = circle_points(r, gon);
-	const len = ring.length;
-	const { cx, cy } = origin;
+function draw_rounded_text(drawer, { radius, text }, fontSettings = {}) {
+	const obj = drawer
+		.textPath(`${text}`, generate_circle_path(radius))
+		.font(fontSettings)
+		.attr("textLength", `${2 * radius * Math.PI}`);
 
-	let result = [];
-	for (let i = 0; i < len - 1; i++) {
-		for (let k = i + 2; k < len; k++) {
-			if (Math.abs(i - k) % (len - 1) === 0) continue;
-			result.push({ x1: ring[i].x + cx, y1: ring[i].y + cy, x2: ring[k].x + cx, y2: ring[k].y + cy });
-		}
-	}
+	drawer.add(obj.track().fill("transparent"));
 
-	return result;
-}
-
-function centers(r, gon, origin = { cx: 0, cy: 0 }) {
-	const ring = circle_points(r, gon);
-	const len = ring.length;
-	const { cx, cy } = origin;
-
-	let result = [];
-	for (let i = 0; i < len; i++) {
-		result.push({ x1: cx, y1: cy, x2: ring[i].x + cx, y2: ring[i].y + cy });
-	}
-
-	return result;
+	return obj;
 }
