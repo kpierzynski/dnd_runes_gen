@@ -33,3 +33,17 @@ function draw_rounded_text(drawer, { radius, text }, fontSettings = {}) {
 
 	return obj;
 }
+
+function draw_line(drawer, {x1,y1,x2,y2}) {
+	return drawer.line(x1,y1,x2,y2).stroke({width:3, color: "black"});
+}
+
+function draw_shape(drawer, {radius, vertices}) {
+	const points = points_ngon(radius, vertices);
+
+	const group = drawer.group()
+
+	points.forEach( vector => draw_line(group, vector))
+
+	return group;
+}
