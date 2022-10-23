@@ -1,5 +1,4 @@
-class Drawer 
-{
+class Drawer {
 	constructor(svg) {
 		this.drawer = svg.group();
 	}
@@ -21,10 +20,10 @@ class Drawer
 			.circle(2 * radius - thickness)
 			.stroke({ width: thickness, color: "white" })
 			.fill("transparent")
-			.dmove(-radius+thickness/2, -radius+thickness/2);
+			.dmove(-radius + thickness / 2, -radius + thickness / 2);
 
-		const circle = draw_circle({ radius: radius - thickness });
-		const circle2 = draw_circle({ radius: radius });
+		const circle = this.draw_circle({ radius: radius - thickness });
+		const circle2 = this.draw_circle({ radius: radius });
 
 		return group;
 	}
@@ -40,25 +39,29 @@ class Drawer
 		return obj;
 	}
 
-	draw_line({x1,y1,x2,y2}) {
-		return this.drawer.line(x1,y1,x2,y2).stroke({width:3, color: "black"});
+	draw_line({ x1, y1, x2, y2 }, drawer = this.drawer) {
+		return drawer.line(x1, y1, x2, y2).stroke({ width: 3, color: "black" });
 	}
 
-	draw_shape({radius, vertices}) {
+	draw_shape({ radius, vertices }) {
 		const points = points_ngon(radius, vertices);
-		const group = this.drawer.group()
+		const group = this.drawer.group();
 
-		points.forEach( vector => draw_line(group, vector))
+		points.forEach((vector) => this.draw_line(vector, group));
 
 		return group;
 	}
 
-	draw_offseted({radius, vertices, steps}) {
+	draw_offseted({ radius, vertices, steps }) {
 		let r = radius;
-		
-		for(let i= 0; i < steps; i++) {
-			this.draw_shape({radius:r, vertices: vertices}).rotate(i*180/vertices, 0, 0 );
-			r = r * Math.cos(deg2rad(180/vertices));
-		}	
+
+		for (let i = 0; i < steps; i++) {
+			this.draw_shape({ radius: r, vertices: vertices }).rotate((i * 180) / vertices, 0, 0);
+			r = r * Math.cos(deg2rad(180 / vertices));
+		}
+	}
+
+	draw_glyphs({ radius, glyphs }) {
+		this.draw_rounded_text({ radius: radius, text: glyphs.join(" ") }, { size: 40, weight: "bold" });
 	}
 }
