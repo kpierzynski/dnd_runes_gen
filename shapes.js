@@ -1,49 +1,64 @@
-function draw_ring(drawer, { radius, thickness }) {
-	const group = drawer.group();
+class Drawer 
+{
+	constructor(svg) {
+		this.drawer = svg.group();
+	}
 
-	const ring = group
-		.circle(2 * radius - thickness / 2)
-		.stroke({ width: thickness, color: "white" })
-		.fill("transparent")
-		.dmove(-radius, -radius);
+	draw_circle({ radius }) {
+		const circle = this.drawer
+			.circle(2 * radius)
+			.stroke({ width: 3, color: "black" })
+			.fill("transparent")
+			.dmove(-radius, -radius);
 
-	const circle = draw_circle(group, { radius: radius - thickness });
-	const circle2 = draw_circle(group, { radius: radius });
+		return circle;
+	}
 
-	return group;
-}
+	draw_ring({ radius, thickness }) {
+		const group = this.drawer.group();
 
-function draw_circle(drawer, { radius }) {
-	const circle = drawer
-		.circle(2 * radius)
-		.stroke({ width: 3, color: "black" })
-		.fill("transparent")
-		.dmove(-radius, -radius);
+		const ring = group
+			.circle(2 * radius - thickness)
+			.stroke({ width: thickness, color: "white" })
+			.fill("transparent")
+			.dmove(-radius+thickness/2, -radius+thickness/2);
 
-	return circle;
-}
+		const circle = draw_circle({ radius: radius - thickness });
+		const circle2 = draw_circle({ radius: radius });
 
-function draw_rounded_text(drawer, { radius, text }, fontSettings = {}) {
-	const obj = drawer
-		.textPath(`${text}`, generate_circle_path(radius))
-		.font(fontSettings)
-		.attr("textLength", `${2 * radius * Math.PI}`);
+		return group;
+	}
 
-	drawer.add(obj.track().fill("transparent"));
+	draw_rounded_text({ radius, text }, fontSettings = {}) {
+		const obj = this.drawer
+			.textPath(`${text}`, generate_circle_path(radius))
+			.font(fontSettings)
+			.attr("textLength", `${2 * radius * Math.PI}`);
 
-	return obj;
-}
+		this.drawer.add(obj.track().fill("transparent"));
 
-function draw_line(drawer, {x1,y1,x2,y2}) {
-	return drawer.line(x1,y1,x2,y2).stroke({width:3, color: "black"});
-}
+		return obj;
+	}
 
-function draw_shape(drawer, {radius, vertices}) {
-	const points = points_ngon(radius, vertices);
+	draw_line({x1,y1,x2,y2}) {
+		return this.drawer.line(x1,y1,x2,y2).stroke({width:3, color: "black"});
+	}
 
-	const group = drawer.group()
+	draw_shape({radius, vertices}) {
+		const points = points_ngon(radius, vertices);
+		const group = this.drawer.group()
 
-	points.forEach( vector => draw_line(group, vector))
+		points.forEach( vector => draw_line(group, vector))
 
-	return group;
+		return group;
+	}
+
+	draw_offseted({radius, vertices, steps}) {
+		let r = radius;
+		
+		for(let i= 0; i < steps; i++) {
+			this.draw_shape({radius:r, vertices: vertices}).rotate(i*180/vertices, 0, 0 );
+			r = r * Math.cos(deg2rad(180/vertices));
+		}	
+	}
 }
