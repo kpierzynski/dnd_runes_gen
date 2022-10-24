@@ -1,20 +1,20 @@
-class Drawer {
-	constructor(svg) {
-		this.drawer = svg.group();
+class Drawer extends SVG.G {
+	constructor(canvas) {
+		super();
+		canvas.add(this);
 	}
 
-	draw_circle({ radius }) {
-		const circle = this.drawer
-			.circle(2 * radius)
+	draw_circle({ radius }, fill = "transparent") {
+		const circle = this.circle(2 * radius)
 			.stroke({ width: 3, color: "black" })
-			.fill("transparent")
+			.fill(fill)
 			.dmove(-radius, -radius);
 
 		return circle;
 	}
 
 	draw_ring({ radius, thickness }) {
-		const group = this.drawer.group();
+		const group = this.group();
 
 		const ring = group
 			.circle(2 * radius - thickness)
@@ -22,30 +22,31 @@ class Drawer {
 			.fill("transparent")
 			.dmove(-radius + thickness / 2, -radius + thickness / 2);
 
-		const circle = this.draw_circle({ radius: radius - thickness });
+		const circle = this.draw_circle({ radius: radius - thickness }, "white");
 		const circle2 = this.draw_circle({ radius: radius });
 
 		return group;
 	}
 
 	draw_rounded_text({ radius, text }, fontSettings = {}) {
-		const obj = this.drawer
-			.textPath(`${text}`, generate_circle_path(radius))
-			.font(fontSettings)
-			.attr("textLength", `${2 * radius * Math.PI}`);
+		const length = 2 * radius * Math.PI;
 
-		this.drawer.add(obj.track().fill("transparent"));
+		const obj = this.textPath(`${text}`, generate_circle_path(radius))
+			.font(fontSettings)
+			.attr("textLength", `${length}`);
+
+		this.add(obj.track().fill("transparent"));
 
 		return obj;
 	}
 
-	draw_line({ x1, y1, x2, y2 }, drawer = this.drawer) {
+	draw_line({ x1, y1, x2, y2 }, drawer = this) {
 		return drawer.line(x1, y1, x2, y2).stroke({ width: 3, color: "black" });
 	}
 
 	draw_shape({ radius, vertices }) {
 		const points = points_ngon(radius, vertices);
-		const group = this.drawer.group();
+		const group = this.group();
 
 		points.forEach((vector) => this.draw_line(vector, group));
 
@@ -61,7 +62,20 @@ class Drawer {
 		}
 	}
 
-	draw_glyphs({ radius, glyphs }) {
-		this.draw_rounded_text({ radius: radius, text: glyphs.join(" ") }, { size: 40, weight: "bold" });
+	draw_letter({ letter, size }) {
+		const symbol = this.text(letter).font({ size: size, weight: "bold" });
+		const { width, height } = symbol.node.getBBox();
+
+		return symbol.dmove(0, -symbol.y()).dmove(-width / 2, -height / 2);
+	}
+
+	draw_glyphs({ radius, glyphs, size }) {
+		const points = points_circle(radius, glyphs.length);
+		points.forEach((point, i) => {
+			this.draw_letter({ letter: glyphs[i], size })
+				.dmove(point.x, point.y)
+				.rotate(rad2deg(Math.atan2(point.y, point.x)))
+				.rotate(90);
+		});
 	}
 }

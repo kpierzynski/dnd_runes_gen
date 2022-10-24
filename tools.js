@@ -6,6 +6,10 @@ function deg2rad(deg) {
 	return (Math.PI * deg) / 180;
 }
 
+function rad2deg(rad) {
+	return (180 * rad) / Math.PI;
+}
+
 function generate_circle_path(r) {
 	return `m ${-r} 0 a ${r}, ${r} 0 1,1 ${2 * r},0 a ${r},${r} 0 1,1 ${-2 * r},0`;
 }
