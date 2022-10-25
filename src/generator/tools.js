@@ -14,6 +14,12 @@ function generate_circle_path(r) {
 	return `m ${-r} 0 a ${r}, ${r} 0 1,1 ${2 * r},0 a ${r},${r} 0 1,1 ${-2 * r},0`;
 }
 
+function random_runes(length) {
+	return [...new Array(length)].map(() => Math.round(Math.random() * runes.length)).map((i) => runes[i]);
+}
+
+export { polar2cart, deg2rad, rad2deg, generate_circle_path, random_runes };
+
 const runes = [
 	"ᚡ",
 	"ᚢ",
@@ -88,7 +94,3 @@ const runes = [
 	"ᛯ",
 	"ᛰ"
 ];
-
-function random_runes(length) {
-	return [...new Array(length)].map(() => Math.round(Math.random() * runes.length)).map((i) => runes[i]);
-}

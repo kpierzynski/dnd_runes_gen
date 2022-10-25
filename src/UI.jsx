@@ -1,11 +1,24 @@
 import { useRef, useState, useEffect } from 'react'
 import './UI.css'
 
-import UIprimitive from "./UI_inputs/UIprimitive"
+import { random_runes } from './generator/tools';
+import { person } from '@jsonforms/examples';
+import { ThemeProvider, createTheme} from '@mui/material/styles'
 
-import update from 'immutability-helper';
+import {
+  materialRenderers,
+  materialCells
+} from '@jsonforms/material-renderers';
 
-const initObject = {
+import { JsonForms } from '@jsonforms/react';
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'light',
+  },
+});
+
+let initialData = {
 	ring: {
 		radius: 300,
 		thickness: 30,
@@ -14,7 +27,7 @@ const initObject = {
 	},
 	glyph: {
 		radius: 160,
-		glyphs: ["A"],
+		glyphs: random_runes(5),
 		size: 50
 	},
 	lines: [
@@ -25,38 +38,39 @@ const initObject = {
 	],
 	planets: {
 		center: true,
-		slots: 3,
-    nested: {
-      prop: 0
-    }
+		slots: 3
 	}
 };
 
-const schema = {
+let schema = {
   type: "object",
   properties: {
     ring: {
       type: "object",
       properties: {
        radius: {
-         type: "number"
+         type: "integer"
        },
        thickness: {
-         type: "number"
+         type: "integer"
        },
        text: {
-         type: "string"
+         type: "string",
+         "options":{
+          "multi":true
+        }
        },
        text_size: {
-         type: "number"
+         type: "integer"
        }
-      }
+      },
+      required: ["radius", "thickness"]
     },
     glyph: {
       type: "object",
       properties: {
         radius: {
-          type: "number"
+          type: "integer"
         },
         glyphs: {
           type: "array",
@@ -65,7 +79,7 @@ const schema = {
           }
         },
         size: {
-          type: "number"
+          type: "integer"
         }
       }
     },
@@ -75,12 +89,15 @@ const schema = {
         type: "object",
         properties: {
           vertices: {
-            type: "number"
+            type: "integer",
+            minimum: 3
           },
           steps: {
-            type: "number"
+            type: "integer",
+            minimum: 1
           }
-        }
+        },
+        required: ["vertices", "steps"]
       }
     },
     planets: {
@@ -90,65 +107,110 @@ const schema = {
           type: "boolean"
         },
         slots: {
-          type: "number"
+          type: "integer"
         },
-        nested: {
-          type: "object",
-          properties: {
-            prop: {
-              type: "number"
-            }
-          }
-        }
       }
-    }
+    },
   }
 }
 
-function UI({onChange}) {
-
-  const [data, setData] = useState(initObject);
-
-  function handleChange(path, value) {
-    let obj = {...data};
-    let c = obj;
-    for( let i = 0; i < path.length-1; i++ ) {
-      c = c[path[i]];
+const uischema = {
+  type: "HorizontalLayout",
+  elements: [
+    {
+      type: "Group",
+      label: "Outer Ring",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/ring/properties/radius",
+        }, 
+        {
+          type: "Control",
+          scope: "#/properties/ring/properties/thickness"
+        },
+        {
+          type: "Control",
+          scope: "#/properties/ring/properties/text",
+          options: {
+            "multi": true
+          }
+        },
+        {
+          type: "Control",
+          scope: "#/properties/ring/properties/text_size"
+        }
+      ]
+    },
+    {
+      type: "Group",
+      label: "Planets",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/planets/properties/center",
+        }, 
+        {
+          type: "Control",
+          scope: "#/properties/planets/properties/slots"
+        },
+      ]
+    },
+    {
+      type: "Group",
+      label: "Inner Lines",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/lines"
+        }
+      ]
+    },
+    {
+      type: "Group",
+      label: "Glyphs",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/glyph/properties/radius"
+        },
+        {
+          type: "Control",
+          scope: "#/properties/glyph/properties/size"
+        },
+        {
+          type: "Control",
+          scope: "#/properties/glyph/properties/glyphs"
+        }
+      ]
     }
-    c[path.at(-1)] = value;
-    setData(obj);
-    onChange(obj);
-  }
+  ]
+}
 
-  function generateUI(schema, name) {
+function UI({onChange}) {
+  
+  const [data, setData] = useState(initialData);
 
-      const primitives = {
-        boolean: "checkbox",
-        number: "number",
-        string: "text"
-      }
-
-      switch( schema.type ) {
-        case "array":
-          return <div className='box'>{name.at(-1)} {generateUI(schema.items, name)}</div>
-
-        case "object":
-          return <div className='box'>{name.at(-1)} {Object.entries(schema.properties).map( ([key, value]) => {
-            return <div className="">{generateUI(value, [...name, key])}</div>
-          })}</div>
-
-        default:
-          return <UIprimitive type={primitives[schema.type]} onChange={handleChange} path={name} title={name.at(-1)} />
-      }
-
+  function handleChange({data: newData, errors}) {
+    setData(newData);
+    if( errors.length > 0 ) return;
+    onChange(newData);
   }
 
   return (
-    <div className="ui_container">
-      {JSON.stringify(data)}
-      {generateUI(schema, [])}
+    <div className="container">
+      <ThemeProvider theme={darkTheme}>
+       <JsonForms
+         schema={schema}
+         uischema={uischema}
+         data={data}
+         renderers={materialRenderers}
+         cells={materialCells}
+         onChange={handleChange}
+       />
+      </ThemeProvider>
     </div>
   )
 }
 
-export default UI
+export default UI;

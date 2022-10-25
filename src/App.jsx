@@ -9,7 +9,9 @@ function App() {
   const [rune, setRune] = useState();
 
   useEffect( () => {
-    setCanvas(SVG().addTo("#drawing"));
+    if( canvas ) return;
+
+    setCanvas(SVG().addTo("#drawing").size("100%", "100%"));
   }, [] );
 
   useEffect( () => {
@@ -18,7 +20,8 @@ function App() {
   }, [canvas])
 
   function handleChange(data) {
-    rune.draw(data);
+    if( !data || !rune ) return;
+    rune.draw(data).dmove(400,400);
   }
 
   return (

@@ -1,4 +1,6 @@
-import { SVG, G } from "@svgdotjs/svg.js"
+import { SVG, G, TextPath } from "@svgdotjs/svg.js";
+import { generate_circle_path, rad2deg, deg2rad, polar2cart } from "./tools";
+import { points_circle, points_center, points_ngon, points_star } from "./points";
 
 class Drawer extends G {
 	constructor(canvas) {
@@ -30,12 +32,18 @@ class Drawer extends G {
 		return group;
 	}
 
-	draw_rounded_text({ radius, text }, fontSettings = {}) {
-		const length = 2 * radius * Math.PI;
+	draw_rounded_text({ radius, thickness, text }, fontSettings = {}) {
+		const test = this.text(text).font(fontSettings);
+		let { height } = test.node.getBBox();
+		height -= 6;
+		test.remove();
 
-		const obj = this.textPath(`${text}`, generate_circle_path(radius))
-			.font(fontSettings)
-			.attr("textLength", `${length}`);
+		const r = radius - thickness / 2 - height / 2;
+
+		const path = generate_circle_path(r);
+
+		const length = 2 * r * Math.PI;
+		const obj = this.textPath(text, path).font(fontSettings).attr("textLength", `${length}`);
 
 		this.add(obj.track().fill("transparent"));
 

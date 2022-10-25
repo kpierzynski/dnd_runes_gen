@@ -1,21 +1,4 @@
-.ui_container {
-	border: 1px solid green;
-	
-	margin: 1rem;
+.container {
 	padding: 1rem;
-
-	color: white;
-}
-.box {
-	border: 1px solid red;
-	
 	margin: 1rem;
-	padding: 1rem;
-}
-
-.box2 {
-	border: 1px solid blue;
-	
-	margin: 1rem;
-	padding: 1rem;
 }

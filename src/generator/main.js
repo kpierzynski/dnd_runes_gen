@@ -1,4 +1,4 @@
-import Drawer from "./shapes"
+import Drawer from "./shapes";
 
 class Rune {
 	constructor(canvas) {
@@ -13,7 +13,8 @@ class Rune {
 
 		drawer.draw_rounded_text(
 			{
-				radius: ring.radius + ring.thickness / 4,
+				radius: ring.radius,
+				thickness: ring.thickness,
 				text: ring.text
 			},
 			{ size: ring.text_size, weight: "bold" }

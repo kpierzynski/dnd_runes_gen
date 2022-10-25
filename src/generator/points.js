@@ -1,3 +1,5 @@
+import { generate_circle_path, polar2cart, rad2deg, deg2rad } from "./tools";
+
 function points_circle(r, point_count) {
 	const step = (2 * Math.PI) / point_count;
 	const rotate = (3 * Math.PI) / 2;
@@ -49,3 +51,5 @@ function points_center(r, gon) {
 
 	return result;
 }
+
+export { points_center, points_circle, points_ngon, points_star };
