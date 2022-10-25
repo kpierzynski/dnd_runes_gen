@@ -1,31 +1,102 @@
 import { useRef, useState, useEffect } from 'react'
 import './UI.css'
 
-import UInumber from "./UI_inputs/UInumber"
+import UIprimitive from "./UI_inputs/UIprimitive"
+
+import update from 'immutability-helper';
+
+const initObject = {
+	ring: {
+		radius: 300,
+		thickness: 30,
+		text: "very long intense hard to read and write text to test curving letters based on path hard task to do btw cuz it is very longy text",
+		text_size: 20
+	},
+	glyph: {
+		radius: 160,
+		glyphs: ["A"],
+		size: 50
+	},
+	lines: [
+		{
+			vertices: 8,
+			steps: 4
+		}
+	],
+	planets: {
+		center: true,
+		slots: 3,
+    nested: {
+      prop: 0
+    }
+	}
+};
 
 const schema = {
-  "type": "object",
-  "properties": {
-    "radius": {
-      "type": "number"
+  type: "object",
+  properties: {
+    ring: {
+      type: "object",
+      properties: {
+       radius: {
+         type: "number"
+       },
+       thickness: {
+         type: "number"
+       },
+       text: {
+         type: "string"
+       },
+       text_size: {
+         type: "number"
+       }
+      }
     },
-    "settings": {
-      "type": "object",
-      "properties": {
-        "setting1": {
-          "type": "number"
+    glyph: {
+      type: "object",
+      properties: {
+        radius: {
+          type: "number"
         },
-        "setting2": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "value1": {
-                "type": "number"
-              },
-              "value2": {
-                "type": "number"
-              }
+        glyphs: {
+          type: "array",
+          items: {
+            type: "string"
+          }
+        },
+        size: {
+          type: "number"
+        }
+      }
+    },
+    lines: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          vertices: {
+            type: "number"
+          },
+          steps: {
+            type: "number"
+          }
+        }
+      }
+    },
+    planets: {
+      type: "object",
+      properties: {
+        center: {
+          type: "boolean"
+        },
+        slots: {
+          type: "number"
+        },
+        nested: {
+          type: "object",
+          properties: {
+            prop: {
+              type: "number"
             }
           }
         }
@@ -34,28 +105,48 @@ const schema = {
   }
 }
 
-function UI() {
+function UI({onChange}) {
 
-  function generateUI(name, schema) {
+  const [data, setData] = useState(initObject);
+
+  function handleChange(path, value) {
+    let obj = {...data};
+    let c = obj;
+    for( let i = 0; i < path.length-1; i++ ) {
+      c = c[path[i]];
+    }
+    c[path.at(-1)] = value;
+    setData(obj);
+    onChange(obj);
+  }
+
+  function generateUI(schema, name) {
+
+      const primitives = {
+        boolean: "checkbox",
+        number: "number",
+        string: "text"
+      }
 
       switch( schema.type ) {
-        case "number":
-          return <UInumber title={name} />
-
         case "array":
-          return generateUI(name, schema.items)
+          return <div className='box'>{name.at(-1)} {generateUI(schema.items, name)}</div>
 
         case "object":
-          return <div>{name} {Object.entries(schema.properties).map( ([key, value]) => {
-            return <div className="box2">{generateUI(key, value)}</div>
+          return <div className='box'>{name.at(-1)} {Object.entries(schema.properties).map( ([key, value]) => {
+            return <div className="">{generateUI(value, [...name, key])}</div>
           })}</div>
+
+        default:
+          return <UIprimitive type={primitives[schema.type]} onChange={handleChange} path={name} title={name.at(-1)} />
       }
 
   }
 
   return (
     <div className="ui_container">
-      {generateUI("ring", schema)}
+      {JSON.stringify(data)}
+      {generateUI(schema, [])}
     </div>
   )
 }

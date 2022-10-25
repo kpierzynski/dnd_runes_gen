@@ -1,4 +1,6 @@
-class Drawer extends SVG.G {
+import { SVG, G } from "@svgdotjs/svg.js"
+
+class Drawer extends G {
 	constructor(canvas) {
 		super();
 		canvas.add(this);
@@ -79,3 +81,5 @@ class Drawer extends SVG.G {
 		});
 	}
 }
+
+export default Drawer;
