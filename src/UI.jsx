@@ -113,9 +113,10 @@ const runeSchema = {
         slots: {
           type: "integer"
         },
-      }
+      },
     },
-  }
+  },
+  required: ["ring"]
 }
 
 const planetSchema = structuredClone(runeSchema)
@@ -129,6 +130,7 @@ planetSchema.properties.include = {
   },
   required: ["position"]
 }
+planetSchema.required.push("include")
 
 let schema = {
   type: "object",
