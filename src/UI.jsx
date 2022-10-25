@@ -19,30 +19,34 @@ const darkTheme = createTheme({
 });
 
 let initialData = {
-	ring: {
-		radius: 300,
-		thickness: 30,
-		text: "very long intense hard to read and write text to test curving letters based on path hard task to do btw cuz it is very longy text",
-		text_size: 20
-	},
-	glyph: {
-		radius: 160,
-		glyphs: random_runes(5),
-		size: 50
-	},
-	lines: [
-		{
-			vertices: 8,
-			steps: 4
-		}
-	],
-	planets: {
-		center: true,
-		slots: 3
-	}
-};
+  main: {
+    ring: {
+      radius: 300,
+      thickness: 30,
+      text: "very long intense hard to read and write text to test curving letters based on path hard task to do btw cuz it is very longy text",
+      text_size: 20
+    },
+    glyph: {
+      radius: 160,
+      glyphs: random_runes(5),
+      size: 50
+    },
+    lines: [
+      {
+        vertices: 8,
+        steps: 4
+      }
+    ],
+    planets: {
+      center: true,
+      slots: 3
+    }
+  },
+  other: []
+}
 
-let schema = {
+
+const runeSchema = {
   type: "object",
   properties: {
     ring: {
@@ -114,8 +118,32 @@ let schema = {
   }
 }
 
-const uischema = {
-  type: "HorizontalLayout",
+const planetSchema = structuredClone(runeSchema)
+delete planetSchema.properties.planets;
+planetSchema.properties.include = {
+  type: "object",
+  properties: {
+    position: {
+      type: "integer"
+    }
+  },
+  required: ["position"]
+}
+
+let schema = {
+  type: "object",
+  properties: {
+    main: runeSchema,
+    other: {
+      type: "array",
+      items: planetSchema
+    }
+  }
+}
+
+const uiRuneSchema = {
+  type: "Group",
+  label: "Main",
   elements: [
     {
       type: "Group",
@@ -123,22 +151,22 @@ const uischema = {
       elements: [
         {
           type: "Control",
-          scope: "#/properties/ring/properties/radius",
+          scope: "#/properties/main/properties/ring/properties/radius",
         }, 
         {
           type: "Control",
-          scope: "#/properties/ring/properties/thickness"
+          scope: "#/properties/main/properties/ring/properties/thickness"
         },
         {
           type: "Control",
-          scope: "#/properties/ring/properties/text",
+          scope: "#/properties/main/properties/ring/properties/text",
           options: {
             "multi": true
           }
         },
         {
           type: "Control",
-          scope: "#/properties/ring/properties/text_size"
+          scope: "#/properties/main/properties/ring/properties/text_size"
         }
       ]
     },
@@ -148,11 +176,11 @@ const uischema = {
       elements: [
         {
           type: "Control",
-          scope: "#/properties/planets/properties/center",
+          scope: "#/properties/main/properties/planets/properties/center",
         }, 
         {
           type: "Control",
-          scope: "#/properties/planets/properties/slots"
+          scope: "#/properties/main/properties/planets/properties/slots"
         },
       ]
     },
@@ -162,7 +190,7 @@ const uischema = {
       elements: [
         {
           type: "Control",
-          scope: "#/properties/lines"
+          scope: "#/properties/main/properties/lines"
         }
       ]
     },
@@ -172,18 +200,36 @@ const uischema = {
       elements: [
         {
           type: "Control",
-          scope: "#/properties/glyph/properties/radius"
+          scope: "#/properties/main/properties/glyph/properties/radius"
         },
         {
           type: "Control",
-          scope: "#/properties/glyph/properties/size"
+          scope: "#/properties/main/properties/glyph/properties/size"
         },
         {
           type: "Control",
-          scope: "#/properties/glyph/properties/glyphs"
+          scope: "#/properties/main/properties/glyph/properties/glyphs"
         }
       ]
     }
+  ]
+}
+
+const uischema = {
+  type: "HorizontalLayout",
+  elements: [
+    uiRuneSchema,
+    {
+      type: "Group",
+      label: "Planets",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/other"
+        }
+      ]
+    },
+        
   ]
 }
 

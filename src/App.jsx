@@ -6,7 +6,7 @@ import './App.css'
 
 function App() {
   const [canvas, setCanvas] = useState();
-  const [rune, setRune] = useState();
+  const [mainRune, setMainRune] = useState();
 
   useEffect( () => {
     if( canvas ) return;
@@ -14,14 +14,24 @@ function App() {
     setCanvas(SVG().addTo("#drawing").size("100%", "100%"));
   }, [] );
 
-  useEffect( () => {
-    if( !canvas ) return;
-    setRune(new Rune(canvas));
-  }, [canvas])
-
   function handleChange(data) {
-    if( !data || !rune ) return;
-    rune.draw(data).dmove(400,400);
+    if( !data ) return;
+
+    canvas.clear();
+
+    const svg_x = document.getElementById("drawing").offsetWidth;
+    console.log(svg_x)
+
+    const main = new Rune(canvas)
+    main.draw(data.main).dmove(svg_x/2,window.innerHeight/2);
+    const slots = main.getSlots();
+
+    data.other.forEach( (planet) => {
+      const {x,y} = slots[planet.include.position];
+      new Rune(canvas).draw(planet).dmove(svg_x/2,window.innerHeight/2).dmove(x,y);
+    })
+
+
   }
 
   return (

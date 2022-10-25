@@ -1,5 +1,7 @@
 import Drawer from "./shapes";
 
+import { points_circle } from "./points";
+
 class Rune {
 	constructor(canvas) {
 		this.drawer = new Drawer(canvas);
@@ -20,17 +22,27 @@ class Rune {
 			{ size: ring.text_size, weight: "bold" }
 		);
 
-		lines.forEach(({ vertices, steps }) => {
-			drawer.draw_offseted({
-				radius: ring.radius - ring.thickness,
-				vertices: vertices,
-				steps: steps
+		if (lines)
+			lines.forEach(({ vertices, steps }) => {
+				drawer.draw_offseted({
+					radius: ring.radius - ring.thickness,
+					vertices: vertices,
+					steps: steps
+				});
 			});
-		});
 
-		drawer.draw_glyphs({ radius: glyph.radius, glyphs: glyph.glyphs, size: glyph.size });
+		if (glyph) drawer.draw_glyphs({ radius: glyph.radius, glyphs: glyph.glyphs, size: glyph.size });
+
+		if (planets)
+			this.slots = planets.center
+				? [{ x: 0, y: 0 }, ...points_circle(ring.radius, planets.slots)]
+				: points_circle(ring.radius, planets.slots);
 
 		return drawer;
+	}
+
+	getSlots() {
+		return this.slots;
 	}
 }
 
