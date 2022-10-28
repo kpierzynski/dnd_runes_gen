@@ -10,7 +10,7 @@ class Drawer extends G {
 
 	draw_circle({ radius }, fill = "transparent") {
 		const circle = this.circle(2 * radius)
-			.stroke({ width: 3, color: "black" })
+			.stroke({ width: 2, color: "black" })
 			.fill(fill)
 			.dmove(-radius, -radius);
 
@@ -51,7 +51,7 @@ class Drawer extends G {
 	}
 
 	draw_line({ x1, y1, x2, y2 }, drawer = this) {
-		return drawer.line(x1, y1, x2, y2).stroke({ width: 3, color: "black" });
+		return drawer.line(x1, y1, x2, y2).stroke({ width: 2, color: "black" });
 	}
 
 	draw_shape({ radius, vertices }) {

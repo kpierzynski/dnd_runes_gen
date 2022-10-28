@@ -1,0 +1,11 @@
+.element {
+	padding: 0.3rem;
+}
+
+.element:hover {
+	background-color: lightgray;
+}
+
+.element_selected {
+	background-color: rgb(197, 197, 197);
+}

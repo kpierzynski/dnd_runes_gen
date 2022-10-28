@@ -4,6 +4,8 @@ import UI from "./UI"
 import Rune from "./generator/main"
 import './App.css'
 
+import { points_circle } from "./generator/points"
+
 function App() {
   const [canvas, setCanvas] = useState();
   const [mainRune, setMainRune] = useState();
@@ -16,22 +18,26 @@ function App() {
 
   function handleChange(data) {
     if( !data ) return;
+    if( !canvas ) return;
 
     canvas.clear();
 
     const svg_x = document.getElementById("drawing").offsetWidth;
-    console.log(svg_x)
 
-    const main = new Rune(canvas)
-    main.draw(data.main).dmove(svg_x/2,window.innerHeight/2);
-    const slots = main.getSlots();
+    function draw(arr, offset = {x: 0, y: 0}, slots = [] ) {
+      arr.forEach( element => {
+        const { position } = element.data.position;
+        const points = points_circle(element.data.ring.radius, element.data.planets.slots)
 
-    data.other.forEach( (planet) => {
-      const {x,y} = slots[planet.include.position];
-      new Rune(canvas).draw(planet).dmove(svg_x/2,window.innerHeight/2).dmove(x,y);
-    })
+        const x = offset.x + (slots[position] ? slots[position].x : 0);
+        const y = offset.y + (slots[position] ? slots[position].y : 0);
 
+        new Rune(canvas).draw(element.data).dmove(x, y);
+        if( element.children && element.children.length > 0 ) draw(element.children, {x, y}, points );
+      })
+    }
 
+    draw(data, {x: 400, y: 400 });
   }
 
   return (

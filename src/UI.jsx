@@ -4,6 +4,7 @@ import './UI.css'
 import { random_runes } from './generator/tools';
 import { person } from '@jsonforms/examples';
 import { ThemeProvider, createTheme} from '@mui/material/styles'
+import { Card, CardContent, CardActions, Button, cardClasses } from "@mui/material";
 
 import {
   materialRenderers,
@@ -18,37 +19,26 @@ const darkTheme = createTheme({
   },
 });
 
-let initialData = {
-  main: {
-    ring: {
-      radius: 300,
-      thickness: 30,
-      text: "very long intense hard to read and write text to test curving letters based on path hard task to do btw cuz it is very longy text",
-      text_size: 20
-    },
-    glyph: {
-      radius: 160,
-      glyphs: random_runes(5),
-      size: 50
-    },
-    lines: [
-      {
-        vertices: 8,
-        steps: 4
-      }
-    ],
-    planets: {
-      center: true,
-      slots: 3
-    }
-  },
-  other: []
-}
-
-
-const runeSchema = {
+const schema = {
   type: "object",
   properties: {
+    name: {
+      type: "object",
+      properties: {
+        name: {
+          type: "string"
+        }
+      },
+      required: ["name"]
+    },
+    position: {
+      type: "object",
+      properties: {
+        position: {
+          type: "integer"
+        },
+      }
+    },
     ring: {
       type: "object",
       properties: {
@@ -107,68 +97,60 @@ const runeSchema = {
     planets: {
       type: "object",
       properties: {
-        center: {
-          type: "boolean"
-        },
         slots: {
           type: "integer"
         },
       },
     },
   },
-  required: ["ring"]
+  required: ["ring","name"]
 }
 
-const planetSchema = structuredClone(runeSchema)
-delete planetSchema.properties.planets;
-planetSchema.properties.include = {
-  type: "object",
-  properties: {
-    position: {
-      type: "integer"
-    }
-  },
-  required: ["position"]
-}
-planetSchema.required.push("include")
-
-let schema = {
-  type: "object",
-  properties: {
-    main: runeSchema,
-    other: {
-      type: "array",
-      items: planetSchema
-    }
-  }
-}
-
-const uiRuneSchema = {
-  type: "Group",
-  label: "Main",
+const uischema = {
+  type: "HorizontalLayout",
   elements: [
+    {
+      type: "Group",
+      label: "Name",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/name/properties/name"
+        }
+      ]
+    },
+    {
+      type: "Group",
+      label: "Position",
+      elements: [
+        {
+          type: "Control",
+          scope: "#/properties/position/properties/position"
+        },
+      ]
+    },
     {
       type: "Group",
       label: "Outer Ring",
       elements: [
         {
           type: "Control",
-          scope: "#/properties/main/properties/ring/properties/radius",
+          scope: "#/properties/ring/properties/radius",
         }, 
         {
           type: "Control",
-          scope: "#/properties/main/properties/ring/properties/thickness"
+          scope: "#/properties/ring/properties/thickness"
         },
         {
           type: "Control",
-          scope: "#/properties/main/properties/ring/properties/text",
+          scope: "#/properties/ring/properties/text",
           options: {
             "multi": true
           }
         },
         {
           type: "Control",
-          scope: "#/properties/main/properties/ring/properties/text_size"
+          scope: "#/properties/ring/properties/text_size"
         }
       ]
     },
@@ -178,11 +160,7 @@ const uiRuneSchema = {
       elements: [
         {
           type: "Control",
-          scope: "#/properties/main/properties/planets/properties/center",
-        }, 
-        {
-          type: "Control",
-          scope: "#/properties/main/properties/planets/properties/slots"
+          scope: "#/properties/planets/properties/slots"
         },
       ]
     },
@@ -192,7 +170,7 @@ const uiRuneSchema = {
       elements: [
         {
           type: "Control",
-          scope: "#/properties/main/properties/lines"
+          scope: "#/properties/lines"
         }
       ]
     },
@@ -202,62 +180,182 @@ const uiRuneSchema = {
       elements: [
         {
           type: "Control",
-          scope: "#/properties/main/properties/glyph/properties/radius"
+          scope: "#/properties/glyph/properties/radius"
         },
         {
           type: "Control",
-          scope: "#/properties/main/properties/glyph/properties/size"
+          scope: "#/properties/glyph/properties/size"
         },
         {
           type: "Control",
-          scope: "#/properties/main/properties/glyph/properties/glyphs"
+          scope: "#/properties/glyph/properties/glyphs"
         }
       ]
     }
   ]
 }
 
-const uischema = {
-  type: "HorizontalLayout",
-  elements: [
-    uiRuneSchema,
+const example = {
+  name: {
+    name: "Rune"
+  },
+  position: {
+    position: 0
+  },
+  ring: {
+    radius: 200,
+    thickness: 30,
+    text: "very long intense hard to read and write text to test curving letters based on path hard task to do btw cuz it is very longy text",
+    text_size: 20
+  },
+  glyph: {
+    radius: 100,
+    glyphs: random_runes(5),
+    size: 50
+  },
+  lines: [
     {
-      type: "Group",
-      label: "Planets",
-      elements: [
-        {
-          type: "Control",
-          scope: "#/properties/other"
-        }
-      ]
-    },
-        
-  ]
-}
+      vertices: 8,
+      steps: 4
+    }
+  ],
+  planets: {
+    slots: 3
+  }
+};
+
+const treeInit = [
+  {
+    id: 1,
+    parent: 0,
+    droppable: true,
+    text: "rune 1",
+    data: example
+  },
+  {
+    id: 2,
+    parent: 1,
+    droppable: true,
+    text: "rune 2",
+    data: example
+  },
+  {
+    id: 3,
+    parent: 2,
+    droppable: true,
+    text: "rune 3",
+    data: example
+  },
+]
+
+import {
+  Tree,
+  getBackendOptions,
+  MultiBackend,
+} from "@minoru/react-dnd-treeview";
+import { DndProvider } from "react-dnd";
+
+import update from "immutability-helper";
+import TreeElement from './TreeElement';
 
 function UI({onChange}) {
   
-  const [data, setData] = useState(initialData);
+  const [uiData, setUiData] = useState(treeInit[0].data);
+  const [selectedIndex, setSelectedIndex] = useState(treeInit[0].id);
+
+  const [treeData, setTreeData] = useState(treeInit);
+  const handleDrop = (newTreeData) => setTreeData(newTreeData);
 
   function handleChange({data: newData, errors}) {
-    setData(newData);
+    setUiData(newData);
     if( errors.length > 0 ) return;
-    onChange(newData);
+    
+    treeData.find(item => item.id === selectedIndex) 
+
+    const index = treeData.findIndex( item => item.id === selectedIndex );
+
+    const newTreeData = update( treeData, { [index]: {
+      data: {
+        $set: newData
+      }
+    } } );
+
+    setTreeData(newTreeData);
+  }
+
+  function handleNewRune() {
+    setTreeData([...treeData, {
+      id: treeData.length + 1,
+      parent: selectedIndex,
+      droppable: true,
+      text: "NEW",
+      data: example
+    }, ])
+  }
+
+  function handleRemoveRune() {
+
+    setSelectedIndex(1);
+
+    const clean = (arr, id) => {
+
+      if( id.length === 0 ) return arr;
+      const result = arr.filter(item => !id.includes(item.id) );
+      return clean( result.filter(item => !id.includes(item.parent) ), result.filter(item => id.includes(item.parent)).map(item => item.id) );
+    }
+
+    const result = clean(treeData, [selectedIndex]);
+    setTreeData(result);
+  }
+
+  useEffect( () => {
+    const nest = (items, id = 0, link = 'parent') =>
+    items
+    .filter(item => item[link] === id)
+    .map(item => ({
+      ...item,
+      children: nest(items, item.id)
+    }));
+
+    onChange(nest(treeData));
+  }, [treeData])
+
+  function onPick(id) {
+    setSelectedIndex(id);
+    setUiData( treeData.find(item => item.id === id).data );
   }
 
   return (
+    <ThemeProvider theme={darkTheme}>
     <div className="container">
-      <ThemeProvider theme={darkTheme}>
+      <Card style={{marginBottom: "1rem"}} theme={darkTheme}>
+        <CardContent>
+          <DndProvider backend={MultiBackend} options={getBackendOptions()}>
+      <Tree
+        tree={treeData}
+        rootId={0}
+        onDrop={handleDrop}
+        render={(node, {depth, isOpen, hasChild, onToggle}) => <TreeElement text={node.data.name.name} hasChild={hasChild} depth={depth} node={node} isOpen={isOpen} onToggle={onToggle} isSelected={node.id === selectedIndex} onClick={onPick} />}
+      />
+    </DndProvider>
+    <CardActions>
+      <Button size="small" onClick={handleNewRune}>ADD</Button>
+      <Button size="small" onClick={handleRemoveRune}>REMOVE</Button>
+    </CardActions>
+    </CardContent>
+    </Card>
+
        <JsonForms
          schema={schema}
          uischema={uischema}
-         data={data}
+         data={uiData}
          renderers={materialRenderers}
          cells={materialCells}
          onChange={handleChange}
        />
-      </ThemeProvider>
+
     </div>
+    </ThemeProvider>
   )
 }
 
