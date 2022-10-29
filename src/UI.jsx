@@ -4,7 +4,7 @@ import './UI.css'
 import { random_runes } from './generator/tools';
 import { person } from '@jsonforms/examples';
 import { ThemeProvider, createTheme} from '@mui/material/styles'
-import { Card, CardContent, CardActions, Button, cardClasses } from "@mui/material";
+import { Card, CardContent, CardActions, Button, CssBaseline } from "@mui/material";
 
 import {
   materialRenderers,
@@ -209,14 +209,14 @@ const example = {
     text_size: 20
   },
   glyph: {
-    radius: 100,
-    glyphs: random_runes(5),
+    radius: 0,
+    glyphs: [],
     size: 50
   },
   lines: [
     {
-      vertices: 8,
-      steps: 4
+      vertices: 5,
+      steps: 1
     }
   ],
   planets: {
@@ -229,21 +229,6 @@ const treeInit = [
     id: 1,
     parent: 0,
     droppable: true,
-    text: "rune 1",
-    data: example
-  },
-  {
-    id: 2,
-    parent: 1,
-    droppable: true,
-    text: "rune 2",
-    data: example
-  },
-  {
-    id: 3,
-    parent: 2,
-    droppable: true,
-    text: "rune 3",
     data: example
   },
 ]
@@ -327,6 +312,7 @@ function UI({onChange}) {
 
   return (
     <ThemeProvider theme={darkTheme}>
+      <CssBaseline />
     <div className="container">
       <Card style={{marginBottom: "1rem"}} theme={darkTheme}>
         <CardContent>
