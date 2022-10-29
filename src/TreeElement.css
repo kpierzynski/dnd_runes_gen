@@ -1,5 +1,6 @@
 .element {
 	padding: 0.3rem;
+	border-left: 5px solid transparent;
 }
 
 .element:hover {
@@ -7,10 +8,9 @@
 }
 
 .element_selected {
-	background-color: rgb(250, 250, 250);
+	/*background-color: rgb(250, 250, 250);*/
 
 	border-left: 5px solid rgb(0, 110, 255);
-	margin-left: -5px;
 }
 
 ul {
