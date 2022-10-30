@@ -2,7 +2,6 @@ import { useRef, useState, useEffect } from 'react'
 import './UI.css'
 
 import { random_runes } from './generator/tools';
-import { person } from '@jsonforms/examples';
 import { ThemeProvider, createTheme} from '@mui/material/styles'
 import { Card, CardContent, CardActions, Button, CssBaseline } from "@mui/material";
 
@@ -249,6 +248,7 @@ function UI({onChange}) {
   const [selectedIndex, setSelectedIndex] = useState(treeInit[0].id);
 
   const [treeData, setTreeData] = useState(treeInit);
+  const ref = useRef();
   const handleDrop = (newTreeData) => setTreeData(newTreeData);
 
   function handleChange({data: newData, errors}) {
@@ -269,13 +269,14 @@ function UI({onChange}) {
   }
 
   function handleNewRune() {
-    setTreeData([...treeData, {
+    const newObject = {
       id: treeData.length + 1,
       parent: selectedIndex,
       droppable: true,
-      text: "NEW",
-      data: example
-    }, ])
+      data: structuredClone(example) 
+    }
+    newObject.data.name.name = "New Rune"
+    setTreeData([...treeData, newObject])
   }
 
   function handleRemoveRune() {
@@ -290,6 +291,7 @@ function UI({onChange}) {
     }
 
     const result = clean(treeData, [selectedIndex]);
+    if( result.length === 0 ) return;
     setTreeData(result);
   }
 
