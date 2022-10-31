@@ -13,7 +13,7 @@ function UIslider(props) {
     const {data, path, handleChange} = props;
     const [initialData, setInitialData] = useState(data);
 
-    const [inputValue, onChange] = useDebouncedChange(handleChange, '', data, path, eventToValue)
+    const [inputValue, onChange] = useDebouncedChange(handleChange, '', data, path, eventToValue, 100)
 
     function handleRange(e) {
         handleChange(path, +e.target.value)

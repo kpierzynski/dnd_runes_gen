@@ -6,3 +6,5 @@ ToDo:
 5. Add darkmode switch.
 6. Add random rune generator.
 7. Add title to custom slider control.
+8. Move initial data to separate files from ui.jsx
+9. Divide ui.jsx to components

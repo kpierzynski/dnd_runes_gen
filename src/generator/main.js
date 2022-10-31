@@ -9,11 +9,9 @@ class Rune {
 
 	draw({ ring, glyph, lines, settings }) {
 		const drawer = this.drawer;
-
-		const {transparent_center} = ring;
 		drawer.clear();
 
-		drawer.draw_ring({ radius: ring.radius, thickness: ring.thickness, fill: transparent_center ? "transparent" : "white" });
+		drawer.draw_ring({ radius: ring.radius, thickness: ring.thickness, fill: ring.transparent_center ? "transparent" : "white" });
 
 		drawer.draw_rounded_text(
 			{
