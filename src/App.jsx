@@ -1,14 +1,14 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect, useMemo } from 'react'
 import { SVG } from "@svgdotjs/svg.js"
 import UI from "./UI"
 import Rune from "./generator/main"
 import './App.css'
 
 import { points_circle } from "./generator/points"
+import { CalendarViewDaySharp } from '@mui/icons-material'
 
 function App() {
   const [canvas, setCanvas] = useState();
-  const [mainRune, setMainRune] = useState();
 
   useEffect( () => {
     if( canvas ) return;
@@ -26,8 +26,8 @@ function App() {
 
     function draw(arr, offset = {x: 0, y: 0}, slots = [] ) {
       arr.forEach( element => {
-        const { position } = element.data.position;
-        const points = points_circle(element.data.ring.radius, element.data.planets.slots)
+        const { position } = element.data.settings.position;
+        const points = points_circle(element.data.ring.radius, element.data.settings.planets)
 
         const x = offset.x + (slots[position] ? slots[position].x : 0);
         const y = offset.y + (slots[position] ? slots[position].y : 0);

@@ -17,16 +17,16 @@ class Drawer extends G {
 		return circle;
 	}
 
-	draw_ring({ radius, thickness }) {
+	draw_ring({ radius, thickness, fill }) {
 		const group = this.group();
 
 		const ring = group
 			.circle(2 * radius - thickness)
 			.stroke({ width: thickness, color: "white" })
-			.fill("transparent")
+			.fill(fill)
 			.dmove(-radius + thickness / 2, -radius + thickness / 2);
 
-		const circle = this.draw_circle({ radius: radius - thickness }, "white");
+		const circle = this.draw_circle({ radius: radius - thickness }, fill);
 		const circle2 = this.draw_circle({ radius: radius });
 
 		return group;

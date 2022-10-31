@@ -7,11 +7,13 @@ class Rune {
 		this.drawer = new Drawer(canvas);
 	}
 
-	draw({ ring, glyph, lines, planets }) {
+	draw({ ring, glyph, lines, settings }) {
 		const drawer = this.drawer;
+
+		const {transparent_center} = ring;
 		drawer.clear();
 
-		drawer.draw_ring({ radius: ring.radius, thickness: ring.thickness });
+		drawer.draw_ring({ radius: ring.radius, thickness: ring.thickness, fill: transparent_center ? "transparent" : "white" });
 
 		drawer.draw_rounded_text(
 			{
@@ -33,16 +35,7 @@ class Rune {
 
 		if (glyph) drawer.draw_glyphs({ radius: glyph.radius, glyphs: glyph.glyphs, size: glyph.size });
 
-		if (planets)
-			this.slots = planets.center
-				? [{ x: 0, y: 0 }, ...points_circle(ring.radius, planets.slots)]
-				: points_circle(ring.radius, planets.slots);
-
 		return drawer;
-	}
-
-	getSlots() {
-		return this.slots;
 	}
 }
 
