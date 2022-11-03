@@ -11,7 +11,7 @@ class Rune {
 		const drawer = this.drawer;
 		drawer.clear();
 
-		drawer.draw_ring({ radius: ring.radius, thickness: ring.thickness, transparent: settings.transparent_center });
+		drawer.draw_ring({ radius: ring.radius, thickness: ring.thickness, transparent: ring.transparent_center });
 
 		drawer.draw_rounded_text(
 			{
@@ -22,7 +22,8 @@ class Rune {
 			{ size: ring.text_size }
 		);
 
-		if( lines.center_lines ) drawer.draw_center({radius: ring.radius-ring.thickness, vertices: lines.center_lines_count})
+		if (lines.center_lines)
+			drawer.draw_center({ radius: ring.radius - ring.thickness, vertices: lines.center_lines_count });
 
 		if (lines)
 			lines.lines.forEach(({ vertices, steps }) => {
