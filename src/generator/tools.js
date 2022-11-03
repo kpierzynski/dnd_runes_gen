@@ -18,7 +18,16 @@ function random_runes(length) {
 	return [...new Array(length)].map(() => Math.round(Math.random() * runes.length)).map((i) => runes[i]);
 }
 
-export { polar2cart, deg2rad, rad2deg, generate_circle_path, random_runes };
+function random_normal() {
+	const v = 4;
+	let r = 0;
+	for (let i = v; i > 0; i--) {
+		r += Math.random();
+	}
+	return r / v;
+}
+
+export { polar2cart, deg2rad, rad2deg, generate_circle_path, random_runes, random_normal };
 
 const runes = [
 	"ᚡ",

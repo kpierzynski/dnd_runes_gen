@@ -22,9 +22,6 @@ class Drawer extends G {
 		const group = this.group();
 		const color = transparent ? "transparent" : this.colors.bg;
 
-		console.log(transparent);
-		console.log(color);
-
 		const ring = group
 			.circle(2 * radius - thickness)
 			.stroke({ width: thickness, color: this.colors.bg })
