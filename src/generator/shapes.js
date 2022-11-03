@@ -3,30 +3,32 @@ import { generate_circle_path, rad2deg, deg2rad, polar2cart } from "./tools";
 import { points_circle, points_center, points_ngon, points_star } from "./points";
 
 class Drawer extends G {
-	constructor(canvas) {
+	constructor(canvas, colors = {text: "black", bg: "white"}) {
 		super();
 		canvas.add(this);
+		this.colors = colors;
 	}
 
 	draw_circle({ radius }, fill = "transparent") {
 		const circle = this.circle(2 * radius)
-			.stroke({ width: 2, color: "black" })
+			.stroke({ width: 2, color: this.colors.text })
 			.fill(fill)
 			.dmove(-radius, -radius);
 
 		return circle;
 	}
 
-	draw_ring({ radius, thickness, fill }) {
+	draw_ring({ radius, thickness, transparent }) {
 		const group = this.group();
+		const color = transparent ? "transparent": this.colors.bg;
 
 		const ring = group
 			.circle(2 * radius - thickness)
-			.stroke({ width: thickness, color: "white" })
-			.fill(fill)
+			.stroke({ width: thickness, color: this.colors.bg })
+			.fill(color)
 			.dmove(-radius + thickness / 2, -radius + thickness / 2);
 
-		const circle = this.draw_circle({ radius: radius - thickness }, fill);
+		const circle = this.draw_circle({ radius: radius - thickness }, color );
 		const circle2 = this.draw_circle({ radius: radius });
 
 		return group;
@@ -43,7 +45,7 @@ class Drawer extends G {
 		const path = generate_circle_path(r);
 
 		const length = 2 * r * Math.PI;
-		const obj = this.textPath(text, path).font(fontSettings).attr("textLength", `${length}`);
+		const obj = this.textPath(text, path).font({fill: this.colors.text}).font(fontSettings).attr("textLength", `${length}`);
 
 		this.add(obj.track().fill("transparent"));
 
@@ -51,11 +53,20 @@ class Drawer extends G {
 	}
 
 	draw_line({ x1, y1, x2, y2 }, drawer = this) {
-		return drawer.line(x1, y1, x2, y2).stroke({ width: 2, color: "black" });
+		return drawer.line(x1, y1, x2, y2).stroke({ width: 2, color: this.colors.text });
 	}
 
 	draw_shape({ radius, vertices }) {
 		const points = points_ngon(radius, vertices);
+		const group = this.group();
+
+		points.forEach((vector) => this.draw_line(vector, group));
+
+		return group;
+	}
+
+	draw_center({radius, vertices}) {
+		const points = points_center(radius, vertices);
 		const group = this.group();
 
 		points.forEach((vector) => this.draw_line(vector, group));
@@ -76,7 +87,7 @@ class Drawer extends G {
 		const symbol = this.text(letter).font({ size: size, weight: "bold" });
 		const { width, height } = symbol.node.getBBox();
 
-		return symbol.dmove(0, -symbol.y()).dmove(-width / 2, -height / 2);
+		return symbol.dmove(0, -symbol.y()).dmove(-width / 2, -height / 2).font({fill: this.colors.text});
 	}
 
 	draw_glyphs({ radius, glyphs, size }) {
