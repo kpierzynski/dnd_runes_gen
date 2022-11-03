@@ -8,7 +8,7 @@ const depth = (items, id) => {
 const remove = (items, id) => {
 	if (id.length === 0) return items;
 	const result = items.filter((item) => !id.includes(item.id));
-	return clean(
+	return remove(
 		result.filter((item) => !id.includes(item.parent)),
 		result.filter((item) => id.includes(item.parent)).map((item) => item.id)
 	);

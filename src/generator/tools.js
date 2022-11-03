@@ -18,16 +18,23 @@ function random_runes(length) {
 	return [...new Array(length)].map(() => Math.round(Math.random() * runes.length)).map((i) => runes[i]);
 }
 
-function random_normal() {
+function random_words(length) {
+	return [...new Array(length)].map(() => Math.round(Math.random() * words.length)).map((i) => words[i]);
+}
+
+function random_normal(a, b) {
 	const v = 4;
 	let r = 0;
 	for (let i = v; i > 0; i--) {
 		r += Math.random();
 	}
+	if (Number.isInteger(a) && Number.isInteger(b)) return ~~((b - a) * (r / v) + a);
 	return r / v;
 }
 
-export { polar2cart, deg2rad, rad2deg, generate_circle_path, random_runes, random_normal };
+export { polar2cart, deg2rad, rad2deg, generate_circle_path, random_runes, random_normal, random_words };
+
+const words = ["rune", "dnd", "glyph", "runes", "dungeon", "dragon", "magic", "spell"];
 
 const runes = [
 	"ᚡ",
