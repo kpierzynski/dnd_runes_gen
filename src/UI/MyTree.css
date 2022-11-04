@@ -1,0 +1,12 @@
+.dropTarget {
+	background-color: lightblue;
+}
+
+.treeContainer {
+	min-height: 150px;
+}
+
+.treeContainer > ul {
+	height: 100%;
+	min-height: inherit
+}

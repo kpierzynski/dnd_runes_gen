@@ -11,6 +11,22 @@ import "./App.css";
 import { points_circle } from "./generator/points";
 
 const darkTheme = createTheme({
+	components: {
+		MuiCssBaseline: {
+			styleOverrides: {
+				ul: {
+					listStyle: "none",
+					margin: 0,
+					padding: 0
+				}
+			}
+		},
+		MuiSvgIcon: {
+			styleOverrides: {
+				root: { verticalAlign: "middle" }
+			}
+		}
+	},
 	palette: {
 		mode: "dark"
 	}

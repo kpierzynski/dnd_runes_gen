@@ -1,7 +1,6 @@
 /** @jsxRuntime classic */
 /** @jsx jsx */
 import React, { useRef, useState, useEffect } from "react";
-import "./TreeElement.css";
 
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import KeyboardArrowDown from "@mui/icons-material/KeyboardArrowDown";
@@ -21,6 +20,9 @@ function TreeElement({ node, depth, hasChild, isSelected, isOpen, onToggle, onCl
 	const icon = <IconType color={isDisabled ? "disabled" : "inherit"} onClick={iconClick} />;
 
 	const style = css`
+		align-items: center;
+		display: grid;
+		grid-template-columns: auto auto 1fr auto;
 		border-left: 5px solid transparent;
 		padding-left: calc(${depth}*1rem);
 		&:hover {
@@ -34,10 +36,10 @@ function TreeElement({ node, depth, hasChild, isSelected, isOpen, onToggle, onCl
 
 	return (
 		<div css={[style, isSelected && selectedStyle]} onClick={() => onClick(node.id)}>
-			<Stack direction="row" alignItems="center">
-				{node.droppable && icon}
-				<Typography>{text}</Typography>
-			</Stack>
+			{/*<Stack direction="row" alignItems="center">*/}
+			{node.droppable && icon}
+			<Typography>{text}</Typography>
+			{/*</Stack>*/}
 		</div>
 	);
 }
