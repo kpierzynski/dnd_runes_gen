@@ -110,8 +110,8 @@ function App() {
 		<ThemeProvider theme={darkTheme}>
 			<CssBaseline />
 			<div className="App">
-				<div id="drawing" />
 				<UI onChange={handleChange} />
+				<div id="drawing" />
 			</div>
 		</ThemeProvider>
 	);

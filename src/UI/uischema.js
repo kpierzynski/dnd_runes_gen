@@ -53,22 +53,28 @@ const uischema = {
 			label: "Inner Lines",
 			elements: [
 				{
-					type: "Control",
-					scope: "#/properties/lines/properties/center_lines"
-				},
-				{
-					type: "Control",
-					scope: "#/properties/lines/properties/center_lines_count",
-					rule: {
-						effect: "DISABLE",
-						condition: {
-							scope: "#/properties/lines/properties/center_lines",
-							schema: {
-								enum: [false]
+					type: "HorizontalLayout",
+					elements: [
+						{
+							type: "Control",
+							scope: "#/properties/lines/properties/center_lines_count",
+							rule: {
+								effect: "DISABLE",
+								condition: {
+									scope: "#/properties/lines/properties/center_lines",
+									schema: {
+										enum: [false]
+									}
+								}
 							}
+						},
+						{
+							type: "Control",
+							scope: "#/properties/lines/properties/center_lines"
 						}
-					}
+					]
 				},
+
 				{
 					type: "Control",
 					scope: "#/properties/lines/properties/lines",

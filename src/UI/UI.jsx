@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect } from "react";
-import "./UI.css";
+
+import { Grid } from "@mui/material";
 
 import update from "immutability-helper";
 
@@ -71,7 +72,7 @@ function UI({ onChange }) {
 	const ref = useRef();
 	const [treeData, setTreeData] = useState(treeInit);
 
-	const [selectedIndex, setSelectedIndex] = useState(treeInit[0].id);
+	const [selectedIndex, setSelectedIndex] = useState(0);
 	const selectedItem = treeData.find((item) => item.id === selectedIndex) || null;
 
 	useEffect(() => {
@@ -88,7 +89,7 @@ function UI({ onChange }) {
 
 		const newObject = {
 			id: newId,
-			parent: selectedIndex,
+			parent: selectedIndex || 0,
 			droppable: true,
 			text: newId.toString(),
 			data: generate_random_rune(`New Rune (${parentDepth + 1})`, parentDepth + 1)
@@ -98,8 +99,7 @@ function UI({ onChange }) {
 	}
 
 	function onRemove() {
-		const parentId = treeData.find((item) => item.id === selectedIndex).parent;
-		setSelectedIndex(parentId !== 0 ? parentId : 1);
+		setSelectedIndex();
 
 		const newTreeData = remove(treeData, [selectedIndex]);
 		if (newTreeData.length === 0) return;
@@ -124,15 +124,15 @@ function UI({ onChange }) {
 
 	return (
 		<>
-			<div className="container">
+			<Grid style={{ padding: "1rem", width: "500px" }}>
 				<MyTree
 					treeData={treeData}
 					selectedIndex={selectedIndex}
 					callbacks={{ onMove, onAdd, onRemove, onPick }}
 					reference={ref}
 				/>
-				<MyForm onChange={handleForm} data={selectedItem.data} />
-			</div>
+				<MyForm onChange={handleForm} data={selectedItem?.data} />
+			</Grid>
 		</>
 	);
 }
