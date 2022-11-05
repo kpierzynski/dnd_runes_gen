@@ -9,6 +9,7 @@ import Rune from "./generator/main";
 import "./App.css";
 
 import { points_circle } from "./generator/points";
+import { dark } from "@mui/material/styles/createPalette";
 
 const darkTheme = createTheme({
 	components: {
@@ -34,12 +35,14 @@ const darkTheme = createTheme({
 
 const colors = {
 	text: darkTheme.palette.text.primary,
-	bg: darkTheme.palette.background.default
+	bg: darkTheme.palette.background.default,
+	selected: darkTheme.palette.primary.main
 };
 
 function App() {
 	const [canvas, setCanvas] = useState();
 	const [center, setCenter] = useState({ x: 0, y: 0 });
+	const [selected, setSelected] = useState(1);
 
 	const [data, setData] = useState();
 
@@ -68,13 +71,14 @@ function App() {
 		getCenter();
 	}, [canvas]);
 
-	function handleChange(data) {
+	function handleChange(data, id) {
 		setData(data);
+		setSelected(id);
 	}
 
 	useEffect(() => {
 		draw();
-	}, [center, data]);
+	}, [center, data, selected]);
 
 	function draw() {
 		if (!canvas) return;
@@ -89,7 +93,12 @@ function App() {
 				const x = offset.x + (slots[position] ? slots[position].x : 0);
 				const y = offset.y + (slots[position] ? slots[position].y : 0);
 
-				new Rune(canvas, colors).draw(element.data).dmove(x, y);
+				const colorSet = {
+					text: element.id === selected ? colors.selected : colors.text,
+					bg: colors.bg
+				};
+
+				new Rune(canvas, colorSet).draw(element.data).dmove(x, y);
 				if (element.children && element.children.length > 0) draw(element.children, { x, y }, points);
 			});
 		}

@@ -75,8 +75,8 @@ function UI({ onChange }) {
 	const selectedItem = treeData.find((item) => item.id === selectedIndex) || null;
 
 	useEffect(() => {
-		onChange(nest(treeData));
-	}, [treeData]);
+		onChange(nest(treeData), selectedIndex);
+	}, [treeData, selectedIndex]);
 
 	function onMove(newTree) {
 		setTreeData(newTree);
