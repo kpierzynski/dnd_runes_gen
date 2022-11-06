@@ -85,25 +85,28 @@ function App() {
 		if (!data) return;
 		canvas.clear();
 
-		function draw(arr, offset = { x: 0, y: 0 }, slots = []) {
-			arr.forEach((element) => {
-				const { position } = element.data.settings;
-				const points = points_circle(element.data.ring.radius, element.data.settings.planets);
+		const queue = [];
+		data.forEach((element) => queue.push({ element: element, offset: { x: center.x, y: center.y }, slots: [] }));
 
-				const x = offset.x + (slots[position] ? slots[position].x : 0);
-				const y = offset.y + (slots[position] ? slots[position].y : 0);
+		while (queue.length !== 0) {
+			const { offset, element, slots } = queue.shift();
 
-				const colorSet = {
-					text: element.id === selected ? colors.selected : colors.text,
-					bg: colors.bg
-				};
+			const { position } = element.data.settings;
+			const points = points_circle(element.data.ring.radius, element.data.settings.planets);
 
-				new Rune(canvas, colorSet).draw(element.data).dmove(x, y);
-				if (element.children && element.children.length > 0) draw(element.children, { x, y }, points);
-			});
+			const x = offset.x + (slots[position] ? slots[position].x : 0);
+			const y = offset.y + (slots[position] ? slots[position].y : 0);
+
+			const colorSet = {
+				text: element.id === selected ? colors.selected : colors.text,
+				bg: colors.bg
+			};
+
+			new Rune(canvas, colorSet).draw(element.data).dmove(x, y);
+
+			console.log(element.children);
+			element.children.forEach((item) => queue.push({ element: item, offset: { x, y }, slots: points }));
 		}
-
-		draw(data, center);
 	}
 
 	return (
