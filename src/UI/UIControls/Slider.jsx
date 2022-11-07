@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { withJsonFormsControlProps } from "@jsonforms/react";
+import { useJsonForms, withJsonFormsControlProps } from "@jsonforms/react";
 import { rankWith, schemaTypeIs, uiTypeIs, schemaMatches, and, isRangeControl, showAsRequired } from "@jsonforms/core";
 import { useDebouncedChange } from "@jsonforms/material-renderers/src/util";
 
@@ -9,12 +9,22 @@ import { Slider, Typography, FormLabel } from "@mui/material";
 import merge from "lodash/merge";
 
 function eventToValue(e) {
+	if (Number.isInteger(e)) return e;
 	return +e.target.value;
 }
 
+function path2property(obj, path) {
+	try {
+		return path.split(".").reduce((a, b) => a[b], obj);
+	} catch (err) {
+		return;
+	}
+}
+
 function UIslider(props) {
-	const { handleChange, data, ...rest } = props;
-	const { path, label, id, required, errors, config } = rest;
+	const { handleChange, data, path, label, id, required, errors, config, enabled, schema } = props;
+
+	const { core } = useJsonForms();
 
 	const isValid = errors.length === 0;
 	const [initialData, _] = useState(data);
@@ -23,12 +33,36 @@ function UIslider(props) {
 
 	const appliedUiSchemaOptions = merge({}, config, props.uischema.options);
 
+	let maximum;
+	if (typeof schema.max === "string") {
+		maximum = path2property(core.data, schema.max);
+	}
+	if (typeof schema.max === "object") {
+		maximum = schema.max.f(path2property(core.data, schema.max.path));
+	}
+	if (!maximum) maximum = 500;
+
+	if (maximum < inputValue) {
+		onChange(maximum);
+	}
+
 	const labelStyle = {
 		whiteSpace: "nowrap",
 		overflow: "hidden",
 		textOverflow: "ellipsis",
 		width: "100%"
 	};
+
+	const marks = [
+		{
+			value: 1,
+			label: "0"
+		},
+		{
+			value: maximum,
+			label: maximum.toString()
+		}
+	];
 
 	return (
 		<>
@@ -42,7 +76,16 @@ function UIslider(props) {
 					{label}
 				</Typography>
 			</FormLabel>
-			<Slider value={inputValue} defaultValue={initialData} max={500} min={1} onChange={onChange} />
+			<Slider
+				marks={marks}
+				valueLabelDisplay="auto"
+				disabled={!enabled}
+				value={inputValue}
+				defaultValue={initialData}
+				max={maximum}
+				min={1}
+				onChange={onChange}
+			/>
 		</>
 	);
 }

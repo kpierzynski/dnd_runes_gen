@@ -1,4 +1,4 @@
-import { generate_circle_path, polar2cart, rad2deg, deg2rad } from "./tools";
+import { generate_circle_path, polar2cart, rad2deg, deg2rad } from "./../util/tools";
 
 function points_circle(r, point_count) {
 	const step = (2 * Math.PI) / point_count;

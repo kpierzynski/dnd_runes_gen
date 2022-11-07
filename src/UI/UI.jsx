@@ -1,15 +1,13 @@
 import { useRef, useState, useEffect } from "react";
 
-import { Grid } from "@mui/material";
+import Grid from "@mui/material/Grid";
+import Button from "@mui/material/Button";
+import Tree from "./Tree/Tree";
+import Form from "./Form/Form";
 
 import update from "immutability-helper";
-
-import { random_normal, random_runes, random_words } from "./../generator/tools";
-
-import { depth, remove, nest } from "./../arrayUtil";
-
-import MyTree from "./MyTree";
-import MyForm from "./MyForm";
+import { depth, remove, nest } from "./../util/arrayUtil";
+import { random_rune } from "./../util/random";
 
 const treeInit = [
 	{
@@ -17,58 +15,11 @@ const treeInit = [
 		parent: 0,
 		droppable: true,
 		text: "1",
-		data: generate_random_rune("Main Rune")
+		data: random_rune("Main Rune")
 	}
 ];
 
-function generate_random_rune(name, d = 1) {
-	const depth = d / 2;
-
-	const settings = {
-		name: name,
-		position: random_normal(0, 3),
-		planets: random_normal(3, 6)
-	};
-
-	const radius = ~~(random_normal(50, 250) / depth);
-	const ring = {
-		radius: radius,
-		thickness: random_normal(20, 60),
-		transparent_center: random_normal() > 0.5,
-		text: random_normal() > 0.5 ? random_words(random_normal(10, 30)).join(" ") : "",
-		text_size: random_normal(10, 20)
-	};
-
-	const glyph = {
-		radius: ~~((((random_normal() * 2) / 3) * radius) / depth),
-		size: random_normal(20, 60),
-		glyphs: random_runes(random_normal(3, 16))
-	};
-
-	function generate_random_line() {
-		return {
-			vertices: random_normal(3, 8),
-			steps: random_normal(1, 3)
-		};
-	}
-
-	function generate_random_lines(length) {
-		const items = [];
-		for (let i = 0; i < length; i++) items.push(generate_random_line());
-		return items;
-	}
-
-	const lines = {
-		center_lines: random_normal() >= 0.5,
-		center_lines_count: random_normal(3, 8),
-
-		lines: generate_random_lines(random_normal(1, 3))
-	};
-
-	return { settings, ring, glyph, lines };
-}
-
-function UI({ onChange }) {
+function UI({ onChange, onSave }) {
 	const ref = useRef();
 	const [treeData, setTreeData] = useState(treeInit);
 
@@ -86,13 +37,14 @@ function UI({ onChange }) {
 	function onAdd() {
 		const newId = treeData.reduce((a, b) => (a.id > b.id ? a : b)).id + 1;
 		const parentDepth = depth(treeData, selectedIndex);
+		const childDepth = parentDepth + 1;
 
 		const newObject = {
 			id: newId,
 			parent: selectedIndex || 0,
 			droppable: true,
 			text: newId.toString(),
-			data: generate_random_rune(`New Rune (${parentDepth + 1})`, parentDepth + 1)
+			data: random_rune(`New Rune (${childDepth})`, childDepth)
 		};
 		if (ref.current) ref.current.open(newObject.parent);
 		setTreeData([...treeData, newObject]);
@@ -122,16 +74,28 @@ function UI({ onChange }) {
 		setTreeData(newTreeData);
 	}
 
+	function handleSave() {
+		onSave();
+	}
+
 	return (
 		<>
 			<Grid style={{ padding: "1rem", width: "500px" }}>
-				<MyTree
+				<Tree
 					treeData={treeData}
 					selectedIndex={selectedIndex}
 					callbacks={{ onMove, onAdd, onRemove, onPick }}
 					reference={ref}
 				/>
-				<MyForm onChange={handleForm} data={selectedItem?.data} />
+				<Form onChange={handleForm} data={selectedItem?.data} />
+				<Button
+					onClick={handleSave}
+					style={{ marginTop: "16px", marginBottom: "24px" }}
+					fullWidth
+					variant="contained"
+				>
+					Save
+				</Button>
 			</Grid>
 		</>
 	);

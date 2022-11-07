@@ -1,0 +1,11 @@
+.dropTarget {
+	background-color: #42a5f5
+}
+
+.treeContainer {
+	height: 100%;
+}
+
+.treeContainer > ul {
+	padding-bottom: 4rem;
+}

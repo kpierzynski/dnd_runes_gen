@@ -74,6 +74,28 @@ const uischema = {
 						}
 					]
 				},
+				{
+					type: "HorizontalLayout",
+					elements: [
+						{
+							type: "Control",
+							scope: "#/properties/lines/properties/star_arm_count",
+							rule: {
+								effect: "DISABLE",
+								condition: {
+									scope: "#/properties/lines/properties/star",
+									schema: {
+										enum: [false]
+									}
+								}
+							}
+						},
+						{
+							type: "Control",
+							scope: "#/properties/lines/properties/star"
+						}
+					]
+				},
 
 				{
 					type: "Control",
@@ -95,6 +117,28 @@ const uischema = {
 				{
 					type: "Control",
 					scope: "#/properties/glyph/properties/size"
+				},
+				{
+					type: "HorizontalLayout",
+					elements: [
+						{
+							type: "Control",
+							scope: "#/properties/glyph/properties/border_radius",
+							rule: {
+								effect: "DISABLE",
+								condition: {
+									scope: "#/properties/glyph/properties/border",
+									schema: {
+										enum: [false]
+									}
+								}
+							}
+						},
+						{
+							type: "Control",
+							scope: "#/properties/glyph/properties/border"
+						}
+					]
 				},
 				{
 					type: "Control",

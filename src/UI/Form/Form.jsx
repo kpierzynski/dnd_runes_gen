@@ -1,12 +1,12 @@
 import { JsonForms } from "@jsonforms/react";
 import { materialRenderers, materialCells } from "@jsonforms/material-renderers";
 
-import Slider, { tester as sliderTester } from "./UIControls/Slider";
-import Accordeon, { tester as accordeonTester } from "./UIControls/Accordeon";
-import Cell, { tester as cellTester } from "./UIControls/UICell";
+import Slider, { tester as sliderTester } from "./../UIControls/Slider";
+import Accordeon, { tester as accordeonTester } from "./../UIControls/Accordeon";
+import Cell, { tester as cellTester } from "./../UIControls/UICell";
 
-import uischema from "./uischema";
-import schema from "./schema";
+import uischema from "./../uischema";
+import schema from "./../schema";
 
 const renderers = [
 	...materialRenderers,
@@ -16,12 +16,12 @@ const renderers = [
 
 const cells = [...materialCells, { tester: cellTester, cell: Cell }];
 
-function MyForm({ onChange, data }) {
+function Form({ onChange, data }) {
 	function handleChange({ data: newData, errors }) {
 		if (errors.length > 0) return;
-
 		onChange(newData);
 	}
+
 	return (
 		<JsonForms
 			schema={schema}
@@ -34,4 +34,4 @@ function MyForm({ onChange, data }) {
 	);
 }
 
-export default MyForm;
+export default Form;

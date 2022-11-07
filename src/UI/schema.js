@@ -25,7 +25,8 @@ const schema = {
 				},
 				thickness: {
 					type: "integer",
-					format: "slider"
+					format: "slider",
+					max: "ring.radius"
 				},
 				transparent_center: {
 					type: "boolean"
@@ -47,7 +48,8 @@ const schema = {
 			properties: {
 				radius: {
 					type: "integer",
-					format: "slider"
+					format: "slider",
+					max: { path: "ring.radius", f: (x) => ~~((3 / 2) * x) }
 				},
 				glyphs: {
 					type: "array",
@@ -57,6 +59,14 @@ const schema = {
 				},
 				size: {
 					type: "integer"
+				},
+				border: {
+					type: "boolean"
+				},
+				border_radius: {
+					type: "integer",
+					format: "slider",
+					max: "glyph.size"
 				}
 			}
 		},
@@ -64,7 +74,9 @@ const schema = {
 			type: "object",
 			properties: {
 				center_lines: { type: "boolean" },
-				center_lines_count: { type: "integer" },
+				center_lines_count: { type: "integer", minimum: 2 },
+				star: { type: "boolean" },
+				star_arm_count: { type: "integer", minimum: 5 },
 				lines: {
 					type: "array",
 					items: {

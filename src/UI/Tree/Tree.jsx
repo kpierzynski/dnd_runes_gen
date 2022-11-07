@@ -1,13 +1,13 @@
-import "./MyTree.css";
+import "./Tree.css";
 
 import { Card, CardContent, CardActions, Button, Divider } from "@mui/material";
 
-import { Tree, getBackendOptions, MultiBackend } from "@minoru/react-dnd-treeview";
+import { Tree as DNDTree, getBackendOptions, MultiBackend } from "@minoru/react-dnd-treeview";
 import { DndProvider } from "react-dnd";
 
 import TreeElement from "./TreeElement";
 
-function MyTree({ treeData, selectedIndex, reference, callbacks }) {
+function Tree({ treeData, selectedIndex, reference, callbacks }) {
 	const { onMove, onAdd, onRemove, onPick } = callbacks;
 
 	function handleMove(newTree) {
@@ -31,7 +31,7 @@ function MyTree({ treeData, selectedIndex, reference, callbacks }) {
 			<CardContent style={{ paddingBottom: "0px" }}>
 				<div className="treeContainer">
 					<DndProvider backend={MultiBackend} options={getBackendOptions()}>
-						<Tree
+						<DNDTree
 							classes={{ dropTarget: "dropTarget" }}
 							ref={reference}
 							tree={treeData}
@@ -67,4 +67,4 @@ function MyTree({ treeData, selectedIndex, reference, callbacks }) {
 	);
 }
 
-export default MyTree;
+export default Tree;

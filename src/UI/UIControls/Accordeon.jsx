@@ -5,9 +5,7 @@ import { MaterialLayoutRenderer } from "@jsonforms/material-renderers";
 import { withJsonFormsLayoutProps } from "@jsonforms/react";
 import { rankWith, uiTypeIs } from "@jsonforms/core";
 
-const UIAccordeon = (props) => {
-	const { uischema, schema, path, visible, renderers } = props;
-
+const UIAccordeon = ({ uischema, schema, path, visible, renderers }) => {
 	const layoutProps = {
 		elements: uischema.elements,
 		schema: schema,

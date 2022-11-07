@@ -1,43 +1,15 @@
-import { useRef, useState, useEffect, useMemo, useLayoutEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
+import "./App.css";
+import "./assets/fonts/fonts.css";
+
 import { SVG } from "@svgdotjs/svg.js";
 
-import { CssBaseline } from "@mui/material";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
-
+import PaletteProvider, { colors } from "./PaletteProvider";
 import UI from "./UI/UI";
-import Rune from "./generator/main";
-import "./App.css";
+
+import Rune from "./generator/rune";
 
 import { points_circle } from "./generator/points";
-import { dark } from "@mui/material/styles/createPalette";
-
-const darkTheme = createTheme({
-	components: {
-		MuiCssBaseline: {
-			styleOverrides: {
-				ul: {
-					listStyle: "none",
-					margin: 0,
-					padding: 0
-				}
-			}
-		},
-		MuiSvgIcon: {
-			styleOverrides: {
-				root: { verticalAlign: "middle" }
-			}
-		}
-	},
-	palette: {
-		mode: "dark"
-	}
-});
-
-const colors = {
-	text: darkTheme.palette.text.primary,
-	bg: darkTheme.palette.background.default,
-	selected: darkTheme.palette.primary.main
-};
 
 function App() {
 	const [canvas, setCanvas] = useState();
@@ -80,7 +52,7 @@ function App() {
 		draw();
 	}, [center, data, selected]);
 
-	function draw() {
+	function draw(exporting = false) {
 		if (!canvas) return;
 		if (!data) return;
 		canvas.clear();
@@ -98,25 +70,40 @@ function App() {
 			const y = offset.y + (slots[position] ? slots[position].y : 0);
 
 			const colorSet = {
-				text: element.id === selected ? colors.selected : colors.text,
-				bg: colors.bg
+				text: exporting ? "black" : element.id === selected ? colors.selected : colors.text,
+				bg: exporting ? "white" : colors.bg
 			};
 
-			new Rune(canvas, colorSet).draw(element.data).dmove(x, y);
+			Rune(canvas, colorSet, element.data).dmove(x, y);
 
-			console.log(element.children);
 			element.children.forEach((item) => queue.push({ element: item, offset: { x, y }, slots: points }));
 		}
 	}
 
+	function handleSave() {
+		draw(true);
+
+		var svgData = document.getElementById("drawing").innerHTML;
+		var svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+		var svgUrl = URL.createObjectURL(svgBlob);
+
+		var downloadLink = document.createElement("a");
+		downloadLink.href = svgUrl;
+		downloadLink.download = data[0].data.settings.name;
+		document.body.appendChild(downloadLink);
+		downloadLink.click();
+		document.body.removeChild(downloadLink);
+
+		draw();
+	}
+
 	return (
-		<ThemeProvider theme={darkTheme}>
-			<CssBaseline />
+		<PaletteProvider>
 			<div className="App">
-				<UI onChange={handleChange} />
+				<UI onChange={handleChange} onSave={handleSave} />
 				<div id="drawing" />
 			</div>
-		</ThemeProvider>
+		</PaletteProvider>
 	);
 }
 

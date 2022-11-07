@@ -1,6 +1,8 @@
-import { SVG, G, TextPath } from "@svgdotjs/svg.js";
-import { generate_circle_path, rad2deg, deg2rad, polar2cart } from "./tools";
+import { G } from "@svgdotjs/svg.js";
+import { generate_circle_path, rad2deg, deg2rad, polar2cart } from "./../util/tools";
 import { points_circle, points_center, points_ngon, points_star } from "./points";
+
+import "./../assets/fonts/DUNGRG.ttf";
 
 class Drawer extends G {
 	constructor(canvas, colors = { text: "black", bg: "white" }) {
@@ -28,8 +30,8 @@ class Drawer extends G {
 			.fill(color)
 			.dmove(-radius + thickness / 2, -radius + thickness / 2);
 
-		const circle = this.draw_circle({ radius: radius - thickness }, color);
-		const circle2 = this.draw_circle({ radius: radius });
+		this.draw_circle({ radius: radius - thickness }, color);
+		this.draw_circle({ radius: radius });
 
 		return group;
 	}
@@ -46,7 +48,7 @@ class Drawer extends G {
 
 		const length = 2 * r * Math.PI;
 		const obj = this.textPath(text, path)
-			.font({ fill: this.colors.text })
+			.font({ fill: this.colors.text, family: "Dungeon" })
 			.font(fontSettings)
 			.attr("textLength", `${length}`);
 
@@ -96,14 +98,31 @@ class Drawer extends G {
 			.font({ fill: this.colors.text });
 	}
 
-	draw_glyphs({ radius, glyphs, size }) {
+	draw_glyphs({ radius, glyphs, size, border }) {
+		const { border: border_render, radius: border_radius } = border;
 		const points = points_circle(radius, glyphs.length);
 		points.forEach((point, i) => {
+			if (border_render)
+				this.circle(2 * border_radius)
+					.stroke({ width: 2, color: this.colors.text })
+					.fill(this.colors.bg)
+					.dmove(-border_radius, -border_radius)
+					.dmove(point.x, point.y);
+
 			this.draw_letter({ letter: glyphs[i], size })
 				.dmove(point.x, point.y)
 				.rotate(rad2deg(Math.atan2(point.y, point.x)))
 				.rotate(90);
 		});
+	}
+
+	draw_star({ radius, vertices }) {
+		const points = points_star(radius, vertices);
+		const group = this.group();
+
+		points.forEach((vector) => this.draw_line(vector, group));
+
+		return group;
 	}
 }
 

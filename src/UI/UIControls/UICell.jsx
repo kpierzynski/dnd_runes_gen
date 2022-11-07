@@ -4,20 +4,21 @@ import { withJsonFormsCellProps } from "@jsonforms/react";
 import { rankWith, isStringControl } from "@jsonforms/core";
 
 import { MuiInputText } from "@jsonforms/material-renderers/src/mui-controls/index";
-import { Stack } from "@mui/material";
+import Stack from "@mui/material/Stack";
 import CasinoIcon from "@mui/icons-material/Casino";
 
-import { random_runes } from "./../../generator/tools";
+import { random_glyphs } from "./../../util/random";
 
 function UIslider(props) {
 	const { data, path, handleChange } = props;
 
 	useEffect(() => {
-		if (!data) handleRandom();
+		if (data) return;
+		handleRandom();
 	}, []);
 
 	function handleRandom() {
-		handleChange(path, random_runes(1).at(0));
+		handleChange(path, random_glyphs(1).at(0));
 	}
 
 	return (
