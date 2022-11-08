@@ -1,0 +1,9 @@
+<svg width="1000.0000000000001" height="1000.0000000000001" xmlns="http://www.w3.org/2000/svg" data-name="Layer 2">
+ <g>
+  <title>Layer 1</title>
+  <rect fill-opacity="0" stroke="#020202" fill="#ffffff" stroke-width="96" x="48" y="48" width="904" height="904" id="svg_1" rx="42"/>
+  <line fill="none" stroke="#020202" stroke-width="96" x1="400.00001" y1="148.33333" x2="400.00001" y2="848.33333" id="svg_2"/>
+  <line stroke="#020202" fill="none" stroke-width="96" x1="763.91695" y1="184.41303" x2="401.29166" y2="531.5634" id="svg_3"/>
+ </g>
+
+</svg>
