@@ -11,6 +11,8 @@ import Rune from "./generator/rune";
 
 import { points_circle } from "./generator/points";
 
+import toImg from "react-svg-to-image";
+
 function App() {
 	const [canvas, setCanvas] = useState();
 	const [center, setCenter] = useState({ x: 0, y: 0 });
@@ -56,6 +58,7 @@ function App() {
 		if (!canvas) return;
 		if (!data) return;
 		canvas.clear();
+		const innerCanvas = canvas.group();
 
 		const queue = [];
 		data.forEach((element) => queue.push({ element: element, offset: { x: center.x, y: center.y }, slots: [] }));
@@ -70,31 +73,39 @@ function App() {
 			const y = offset.y + (slots[position] ? slots[position].y : 0);
 
 			const colorSet = {
-				text: exporting ? "black" : element.id === selected ? colors.selected : colors.text,
-				bg: exporting ? "white" : colors.bg
+				text: exporting ? "white" : element.id === selected ? colors.selected : colors.text,
+				bg: exporting ? "black" : colors.bg
 			};
 
-			Rune(canvas, colorSet, element.data).dmove(x, y);
+			Rune(innerCanvas, colorSet, element.data).dmove(x, y);
 
 			element.children.forEach((item) => queue.push({ element: item, offset: { x, y }, slots: points }));
+		}
+
+		if (exporting) {
+			const { x, y, w, h } = innerCanvas.bbox();
+
+			const sy = document.body.clientHeight / h;
+			const sx = document.body.clientWidth / w;
+
+			const py = y + h / 2;
+			const px = x + w / 2;
+			innerCanvas.dmove(center.x - px, center.y - py);
+			if (sy < 1 || sx < 1) {
+				if (sy < sx) innerCanvas.scale(sy, sy);
+				else innerCanvas.scale(sx, sx);
+			}
 		}
 	}
 
 	function handleSave() {
 		draw(true);
 
-		var svgData = document.getElementById("drawing").innerHTML;
-		var svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-		var svgUrl = URL.createObjectURL(svgBlob);
-
-		var downloadLink = document.createElement("a");
-		downloadLink.href = svgUrl;
-		downloadLink.download = data[0].data.settings.name;
-		document.body.appendChild(downloadLink);
-		downloadLink.click();
-		document.body.removeChild(downloadLink);
-
-		draw();
+		toImg("#drawing svg", data[0].data.settings.name, {
+			scale: 3,
+			quality: 0.95,
+			format: "jpeg"
+		}).then(() => draw());
 	}
 
 	return (
