@@ -35,7 +35,7 @@ function UI({ onChange, onSave }) {
 	}
 
 	function onAdd() {
-		const newId = treeData.reduce((a, b) => (a.id > b.id ? a : b)).id + 1;
+		const newId = treeData.reduce((a, b) => (a.id > b.id ? a : b), []).id + 1;
 		const parentDepth = depth(treeData, selectedIndex);
 		const childDepth = parentDepth + 1;
 
@@ -78,6 +78,7 @@ function UI({ onChange, onSave }) {
 		onSave();
 	}
 
+	console.log(selectedIndex);
 	return (
 		<>
 			<Grid style={{ padding: "1rem", width: "500px" }}>
@@ -87,7 +88,7 @@ function UI({ onChange, onSave }) {
 					callbacks={{ onMove, onAdd, onRemove, onPick }}
 					reference={ref}
 				/>
-				<Form onChange={handleForm} data={selectedItem?.data} />
+				<Form onChange={handleForm} data={selectedItem?.data} readonly={!!!selectedIndex} />
 				<Button
 					onClick={handleSave}
 					style={{ marginTop: "16px", marginBottom: "24px" }}

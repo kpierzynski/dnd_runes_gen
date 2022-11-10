@@ -122,7 +122,9 @@ function App() {
 			scale: 3,
 			quality: 0.95,
 			format: "jpeg"
-		}).then(() => draw());
+		}).then(() => {
+			draw();
+		});
 	}
 
 	return (

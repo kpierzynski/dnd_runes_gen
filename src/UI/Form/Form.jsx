@@ -16,7 +16,7 @@ const renderers = [
 
 const cells = [...materialCells, { tester: cellTester, cell: Cell }];
 
-function Form({ onChange, data }) {
+function Form({ onChange, data, readonly }) {
 	function handleChange({ data: newData, errors }) {
 		if (errors.length > 0) return;
 		onChange(newData);
@@ -24,6 +24,7 @@ function Form({ onChange, data }) {
 
 	return (
 		<JsonForms
+			readonly={readonly}
 			schema={schema}
 			uischema={uischema}
 			data={data}
