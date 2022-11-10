@@ -51,10 +51,11 @@ function UI({ onChange, onSave }) {
 	}
 
 	function onRemove() {
-		setSelectedIndex();
+		if (!selectedIndex) return;
 
 		const newTreeData = remove(treeData, [selectedIndex]);
 		if (newTreeData.length === 0) return;
+		setSelectedIndex();
 		setTreeData(newTreeData);
 	}
 
@@ -78,7 +79,6 @@ function UI({ onChange, onSave }) {
 		onSave();
 	}
 
-	console.log(selectedIndex);
 	return (
 		<>
 			<Grid style={{ padding: "1rem", width: "500px" }}>
