@@ -101,7 +101,7 @@ function App() {
 			const { x, y, width, height } = innerCanvas.node.getBBox();
 			const margin = 12;
 
-			innerCanvas.move(margin, 0);
+			innerCanvas.move(margin, margin);
 
 			const w = document.body.clientWidth - margin;
 			const h = document.body.clientHeight - margin;
@@ -109,8 +109,8 @@ function App() {
 			const sx = w < width ? w / width : 1;
 			const sy = h < height ? h / height : 1;
 			if (sx !== 1 || sy !== 1) {
-				if (sx < sy) innerCanvas.scale(sx, sx, margin, 0);
-				else innerCanvas.scale(sy, sy, margin, 0);
+				if (sx < sy) innerCanvas.scale(sx, sx, margin, margin);
+				else innerCanvas.scale(sy, sy, margin, margin);
 			}
 		}
 	}
