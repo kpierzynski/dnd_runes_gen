@@ -4,7 +4,8 @@ import "./assets/fonts/fonts.css";
 
 import { SVG } from "@svgdotjs/svg.js";
 
-import PaletteProvider from "./PaletteProvider";
+import { Backdrop, CircularProgress } from "@mui/material";
+
 import UI from "./UI/UI";
 
 import Rune from "./generator/rune";
@@ -18,6 +19,8 @@ function App() {
 	const [canvas, setCanvas] = useState();
 	const [center, setCenter] = useState({ x: 0, y: 0 });
 	const [selected, setSelected] = useState(1);
+
+	const [open, setOpen] = useState(false);
 
 	const [data, setData] = useState();
 
@@ -116,6 +119,7 @@ function App() {
 	}
 
 	function handleSave() {
+		setOpen(true);
 		draw(true);
 
 		toImg("#drawing svg", data[0].data.settings.name, {
@@ -124,6 +128,7 @@ function App() {
 			format: "jpeg"
 		}).then(() => {
 			draw();
+			setTimeout(() => setOpen(false), 500);
 		});
 	}
 
@@ -131,6 +136,9 @@ function App() {
 		<div className="App">
 			<UI onChange={handleChange} onSave={handleSave} />
 			<div id="drawing" />
+			<Backdrop open={open}>
+				<CircularProgress color="primary" size="6rem" />
+			</Backdrop>
 		</div>
 	);
 }
