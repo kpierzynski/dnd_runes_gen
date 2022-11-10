@@ -26,12 +26,12 @@ function TreeElement({ node, depth, hasChild, isSelected, isOpen, onToggle, onCl
 		border-left: 5px solid transparent;
 		padding-left: calc(${depth}*1rem);
 		&:hover {
-			background-color: ${theme.palette.grey["800"]};
+			background-color: ${theme.palette.action.hover};
 		}
 	`;
 
 	const selectedStyle = css`
-		border-left: 5px solid ${theme.palette.primary.dark};
+		border-left: 5px solid ${theme.palette.primary.main};
 	`;
 
 	return (

@@ -4,7 +4,7 @@ import "./assets/fonts/fonts.css";
 
 import { SVG } from "@svgdotjs/svg.js";
 
-import PaletteProvider, { colors } from "./PaletteProvider";
+import PaletteProvider from "./PaletteProvider";
 import UI from "./UI/UI";
 
 import Rune from "./generator/rune";
@@ -12,6 +12,7 @@ import Rune from "./generator/rune";
 import { points_circle } from "./generator/points";
 
 import toImg from "react-svg-to-image";
+import { useTheme } from "@emotion/react";
 
 function App() {
 	const [canvas, setCanvas] = useState();
@@ -19,6 +20,14 @@ function App() {
 	const [selected, setSelected] = useState(1);
 
 	const [data, setData] = useState();
+
+	const theme = useTheme();
+
+	const colors = {
+		text: theme.palette.text.primary,
+		bg: theme.palette.background.default,
+		selected: theme.palette.primary.main
+	};
 
 	useEffect(() => {
 		if (canvas) return;
@@ -52,7 +61,7 @@ function App() {
 
 	useEffect(() => {
 		draw();
-	}, [center, data, selected]);
+	}, [center, data, selected, colors]);
 
 	function draw(exporting = false) {
 		if (!canvas) return;
@@ -109,12 +118,10 @@ function App() {
 	}
 
 	return (
-		<PaletteProvider>
-			<div className="App">
-				<UI onChange={handleChange} onSave={handleSave} />
-				<div id="drawing" />
-			</div>
-		</PaletteProvider>
+		<div className="App">
+			<UI onChange={handleChange} onSave={handleSave} />
+			<div id="drawing" />
+		</div>
 	);
 }
 
