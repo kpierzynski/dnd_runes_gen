@@ -70,7 +70,13 @@ function App() {
 		const innerCanvas = canvas.group();
 
 		const queue = [];
-		data.forEach((element) => queue.push({ element: element, offset: { x: center.x, y: center.y }, slots: [] }));
+		data.forEach((element) =>
+			queue.push({
+				element: element,
+				offset: { x: exporting ? 0 : center.x, y: exporting ? 0 : center.y },
+				slots: []
+			})
+		);
 
 		while (queue.length !== 0) {
 			const { offset, element, slots } = queue.shift();
@@ -92,17 +98,19 @@ function App() {
 		}
 
 		if (exporting) {
-			const { x, y, w, h } = innerCanvas.bbox();
+			const { x, y, width, height } = innerCanvas.node.getBBox();
+			const margin = 12;
 
-			const sy = document.body.clientHeight / h;
-			const sx = document.body.clientWidth / w;
+			innerCanvas.move(margin, 0);
 
-			const py = y + h / 2;
-			const px = x + w / 2;
-			innerCanvas.dmove(center.x - px, center.y - py);
-			if (sy < 1 || sx < 1) {
-				if (sy < sx) innerCanvas.scale(sy, sy);
-				else innerCanvas.scale(sx, sx);
+			const w = document.body.clientWidth - margin;
+			const h = document.body.clientHeight - margin;
+
+			const sx = w < width ? w / width : 1;
+			const sy = h < height ? h / height : 1;
+			if (sx !== 1 || sy !== 1) {
+				if (sx < sy) innerCanvas.scale(sx, sx, margin, 0);
+				else innerCanvas.scale(sy, sy, margin, 0);
 			}
 		}
 	}

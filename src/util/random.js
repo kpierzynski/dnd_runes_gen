@@ -5,7 +5,7 @@ function random_rune(name, depth = 1) {
 
 	const settings = {
 		name: name,
-		position: random_normal(0, 3),
+		position: Math.round(Math.random() * 3),
 		planets: random_normal(3, 6)
 	};
 
