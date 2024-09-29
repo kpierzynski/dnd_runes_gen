@@ -1,36 +1,33 @@
 {
-  "name": "dnd_runes_gen",
+  "name": "dnd_runes_generator",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@emotion/react": "^11.10.5",
-    "@emotion/styled": "^11.10.5",
-    "@jsonforms/core": "^3.0.0",
-    "@jsonforms/examples": "^3.0.0",
-    "@jsonforms/material-renderers": "^3.0.0",
-    "@jsonforms/react": "^3.0.0",
-    "@minoru/react-dnd-treeview": "^3.2.1",
-    "@mui/icons-material": "^5.10.9",
-    "@mui/material": "^5.10.11",
-    "@svgdotjs/svg.js": "^3.1.2",
     "immutability-helper": "^3.1.1",
-    "immutable": "^4.1.0",
-    "react": "^18.2.0",
-    "react-dnd": "^16.0.1",
-    "react-dom": "^18.2.0",
-    "react-svg-to-image": "^3.0.0"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "@types/react": "^18.0.17",
-    "@types/react-dom": "^18.0.6",
-    "@vitejs/plugin-react": "^2.1.0",
-    "rollup-plugin-visualizer": "^5.8.3",
-    "vite": "^3.1.0"
+    "@eslint/js": "^9.9.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.9.0",
+    "eslint-plugin-react": "^7.35.0",
+    "eslint-plugin-react-hooks": "^5.1.0-rc.0",
+    "eslint-plugin-react-refresh": "^0.4.9",
+    "globals": "^15.9.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "vite": "^5.4.1"
   }
 }
