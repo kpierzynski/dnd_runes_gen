@@ -1,146 +1,129 @@
-import React, { useState, useEffect, useLayoutEffect } from "react";
-import "./App.css";
-import "./assets/fonts/fonts.css";
+import { useState, useId, useRef, useEffect } from "react";
+import { useStore } from "./stores/store";
 
-import { SVG } from "@svgdotjs/svg.js";
+import Tree from "./components/Tree";
+import Inputs from "./components/Inputs";
+import dungrgBase64 from "./assets/dungrg";
 
-import { Backdrop, CircularProgress } from "@mui/material";
-
-import UI from "./UI/UI";
-
-import Rune from "./generator/rune";
-
-import { points_circle } from "./generator/points";
-
-import toImg from "react-svg-to-image";
-import { useTheme } from "@emotion/react";
+import Svg from "./components/Svg/Svg";
 
 function App() {
-	const [canvas, setCanvas] = useState();
-	const [center, setCenter] = useState({ x: 0, y: 0 });
-	const [selected, setSelected] = useState(1);
+	const { state } = useStore();
 
-	const [open, setOpen] = useState(false);
+	const elementRef = useRef(null);
 
-	const [data, setData] = useState();
-
-	const theme = useTheme();
-
-	const colors = {
-		text: theme.palette.text.primary,
-		bg: theme.palette.background.default,
-		selected: theme.palette.primary.main
-	};
-
-	useEffect(() => {
-		if (canvas) return;
-
-		setCanvas(SVG().addTo("#drawing").size("100%", "100%"));
-	}, []);
-
-	const getCenter = () => {
-		const element = document.getElementById("drawing");
-		const box = element.getBoundingClientRect();
-		const center = { x: box.width / 2, y: box.height / 2 };
-		setCenter(center);
-	};
-
-	useLayoutEffect(() => {
-		window.addEventListener("resize", getCenter);
-
-		return () => window.removeEventListener("resize", getCenter);
-	}, []);
-
-	useEffect(() => {
-		if (!canvas) return;
-
-		getCenter();
-	}, [canvas]);
-
-	function handleChange(data, id) {
-		setData(data);
-		setSelected(id);
-	}
-
-	useEffect(() => {
-		draw();
-	}, [center, data, selected, colors]);
-
-	function draw(exporting = false) {
-		if (!canvas) return;
-		if (!data) return;
-		canvas.clear();
-		const innerCanvas = canvas.group();
-
-		const queue = [];
-		data.forEach((element) =>
-			queue.push({
-				element: element,
-				offset: { x: exporting ? 0 : center.x, y: exporting ? 0 : center.y },
-				slots: []
-			})
-		);
-
-		while (queue.length !== 0) {
-			const { offset, element, slots } = queue.shift();
-
-			const { position } = element.data.settings;
-			const points = points_circle(element.data.ring.radius, element.data.settings.planets);
-
-			const x = offset.x + (slots[position] ? slots[position].x : 0);
-			const y = offset.y + (slots[position] ? slots[position].y : 0);
-
-			const colorSet = {
-				text: exporting ? "white" : element.id === selected ? colors.selected : colors.text,
-				bg: exporting ? "black" : colors.bg
-			};
-
-			Rune(innerCanvas, colorSet, element.data).dmove(x, y);
-
-			element.children.forEach((item) => queue.push({ element: item, offset: { x, y }, slots: points }));
-		}
-
-		if (exporting) {
-			const { x, y, width, height } = innerCanvas.node.getBBox();
-			const margin = 12;
-
-			innerCanvas.move(margin, margin);
-
-			const w = document.body.clientWidth - margin;
-			const h = document.body.clientHeight - margin;
-
-			const sx = w < width ? w / width : 1;
-			const sy = h < height ? h / height : 1;
-			if (sx !== 1 || sy !== 1) {
-				if (sx < sy) innerCanvas.scale(sx, sx, margin, margin);
-				else innerCanvas.scale(sy, sy, margin, margin);
+	function embedFont(svg) {
+		const fontBase64 = `data:font/truetype;base64,${dungrgBase64}`;
+		const fontStyle = `
+			@font-face {
+				font-family: "Dungeon";
+				src: url(${fontBase64}) format("truetype");
 			}
+			svg {
+				font-family: "Dungeon";
+			}
+		`;
+
+		const styleElement = document.createElementNS(
+			"http://www.w3.org/2000/svg",
+			"style"
+		);
+		styleElement.textContent = fontStyle;
+		svg.insertBefore(styleElement, svg.firstChild);
+	}
+
+	function inlineStyles(element) {
+		const computedStyle = window.getComputedStyle(element);
+		let styleString = "";
+		for (let key of computedStyle) {
+			if ("stroke" === key) {
+				styleString += `stroke:black`;
+				continue;
+			}
+			styleString += `${key}:${computedStyle.getPropertyValue(key)};`;
 		}
+		element.setAttribute("style", styleString);
+
+		Array.from(element.children).forEach((child) => inlineStyles(child));
 	}
 
-	function handleSave() {
-		setOpen(true);
-		draw(true);
+	function prepareElement() {
+		const svg = document.getElementsByTagName("svg")[0];
+		inlineStyles(svg);
+		embedFont(svg);
+		const serializer = new XMLSerializer();
+		const svgString = serializer.serializeToString(svg);
 
-		toImg("#drawing svg", data[0].data.settings.name, {
-			scale: 3,
-			quality: 0.95,
-			format: "jpeg"
-		}).then(() => {
-			draw();
-			setTimeout(() => setOpen(false), 500);
+		return [svg, svgString];
+	}
+
+	function saveSvg() {
+		const [_, svgString] = prepareElement();
+		const blob = new Blob([svgString], { type: "image/svg+xml" });
+		const url = URL.createObjectURL(blob);
+
+		const link = document.createElement("a");
+		link.href = url;
+		link.download = "image.svg";
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		URL.revokeObjectURL(url);
+	}
+
+	function savePNG() {
+		const [svg, svgData] = prepareElement();
+
+		const canvas = document.createElement("canvas");
+		const ctx = canvas.getContext("2d");
+
+		const img = new Image();
+		const svgBlob = new Blob([svgData], {
+			type: "image/svg+xml;charset=utf-8",
 		});
+		const url = URL.createObjectURL(svgBlob);
+
+		img.onload = function () {
+			canvas.width = svg.clientWidth;
+			canvas.height = svg.clientHeight;
+			ctx.drawImage(img, 0, 0);
+			URL.revokeObjectURL(url);
+
+			const pngData = canvas.toDataURL("image/png");
+			const downloadLink = document.createElement("a");
+			downloadLink.href = pngData;
+			downloadLink.download = "image.png";
+			document.body.appendChild(downloadLink);
+			downloadLink.click();
+			document.body.removeChild(downloadLink);
+		};
+
+		img.src = url;
 	}
 
-	return (
-		<div className="App">
-			<UI onChange={handleChange} onSave={handleSave} />
-			<div id="drawing" />
-			<Backdrop open={open}>
-				<CircularProgress color="primary" size="6rem" />
-			</Backdrop>
+	const app = (
+		<div className="flex bg-gray-200" ref={elementRef}>
+			<div className="flex flex-col gap-2 m-2">
+				<button
+					className="p-2 bg-blue-500 text-white rounded-md"
+					onClick={saveSvg}
+				>
+					Save SVG
+				</button>
+				<button
+					className="p-2 bg-blue-500 text-white rounded-md"
+					onClick={savePNG}
+				>
+					Save PNG
+				</button>
+				<Tree />
+				<Inputs />
+			</div>
+			<Svg rune={state.rune} x={700} y={500} parent={{ radius: 0 }} />
 		</div>
 	);
+
+	return app;
 }
 
 export default App;

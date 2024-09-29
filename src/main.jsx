@@ -1,11 +1,13 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App.jsx";
+import "./index.css";
+import { StoreProvider } from "./stores/store.jsx";
 
-import PaletteProvider from "./PaletteProvider";
-
-ReactDOM.createRoot(document.getElementById("root")).render(
-	<PaletteProvider>
-		<App />
-	</PaletteProvider>
+createRoot(document.getElementById("root")).render(
+	<StoreProvider>
+		<StrictMode>
+			<App />
+		</StrictMode>
+	</StoreProvider>
 );
