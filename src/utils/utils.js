@@ -44,7 +44,7 @@ function generateRandomObject(factor = 1) {
 		borderThickness: getRandomInt(30, 50, factor),
 		thickness: getRandomInt(1, 3, factor),
 		theta: parseInt(Math.random() * 360),
-		transparentFill: Math.random() < 0.5,
+		transparentFill: false,
 		isInCenter: Math.random() < 0.5,
 		textSize: getRandomInt(10, 30, factor),
 		centerLines: getRandomInt(3, 10, factor),
@@ -62,10 +62,61 @@ function generateRandomObject(factor = 1) {
 
 const generateRandomRune = (factor) => generateRandomObject((factor = factor));
 
+function generateRandom() {
+	const initialRune = generateRandomRune(1);
+	initialRune.name = "root";
+
+	const childrenCount = getRandomInt(0, 3);
+
+	initialRune.children = Array.from({ length: childrenCount }, () => {
+		return generateRandomRune(2);
+	});
+
+	switch (initialRune.children.length) {
+		case 0:
+			break;
+
+		case 1:
+			initialRune.children[0].isInCenter = true;
+			break;
+
+		case 2:
+			initialRune.children[0].isInCenter = false;
+			initialRune.children[1].isInCenter = false;
+
+			if (Math.random() < 0.5) {
+				initialRune.children[0].theta = 0;
+				initialRune.children[1].theta = 180;
+			} else {
+				initialRune.children[0].theta = 90;
+				initialRune.children[1].theta = 270;
+			}
+			break;
+
+		case 3:
+			initialRune.children[0].isInCenter = false;
+			initialRune.children[1].isInCenter = false;
+			initialRune.children[2].isInCenter = false;
+
+			if (Math.random() < 0.5) {
+				initialRune.children[0].theta = 0;
+				initialRune.children[1].theta = 120;
+				initialRune.children[2].theta = 240;
+			} else {
+				initialRune.children[0].theta = 60;
+				initialRune.children[1].theta = 180;
+				initialRune.children[2].theta = 300;
+			}
+	}
+
+	return initialRune;
+}
+
 export {
 	generateRandomRune,
 	getRandomInt,
 	polarToCartesian,
 	generateSvgPath,
 	generatePointsCloud,
+	generateRandom,
 };

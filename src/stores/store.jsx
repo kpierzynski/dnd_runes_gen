@@ -1,16 +1,13 @@
 import React, { createContext, useReducer, useContext } from "react";
 import update from "immutability-helper";
 
-import { generateRandomRune, getRandomInt } from "../utils/utils";
+import {
+	generateRandomRune,
+	getRandomInt,
+	generateRandom,
+} from "../utils/utils";
 
-const initialRune = generateRandomRune(1);
-initialRune.name = "root";
-
-const childrenCount = getRandomInt(0, 3);
-
-initialRune.children = Array.from({ length: childrenCount }, () =>
-	generateRandomRune(2)
-);
+const initialRune = generateRandom();
 
 const initialState = {
 	rune: initialRune,
