@@ -1,5 +1,5 @@
 import { useState, useId, useRef, useEffect } from "react";
-import { useStore } from "./stores/store";
+import { useStore, ACTIONS } from "./stores/store";
 
 import Tree from "./components/Tree";
 import Inputs from "./components/Inputs";
@@ -8,7 +8,7 @@ import dungrgBase64 from "./assets/dungrg";
 import Svg from "./components/Svg/Svg";
 
 function App() {
-	const { state } = useStore();
+	const { state, dispatch } = useStore();
 
 	const elementRef = useRef(null);
 
@@ -115,6 +115,12 @@ function App() {
 					onClick={savePNG}
 				>
 					Save PNG
+				</button>
+				<button
+					className="p-2 bg-blue-500 text-white rounded-md"
+					onClick={() => dispatch({ type: ACTIONS.roll })}
+				>
+					Roll!
 				</button>
 				<Tree />
 				<Inputs />

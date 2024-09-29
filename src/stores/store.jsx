@@ -20,6 +20,7 @@ export const ACTIONS = {
 	setSettings: "SETSETTINGS",
 	addChild: "ADDCHILD",
 	removeChild: "REMOVECHILD",
+	roll: "ROLL",
 };
 
 const removeChildByName = (items, name) => {
@@ -102,6 +103,13 @@ const reducer = (state, action) => {
 				},
 				selected: "root",
 			};
+		}
+
+		case ACTIONS.roll: {
+			const initialRune = generateRandom();
+			initialRune.name = "root";
+
+			return { ...state, rune: initialRune, selected: "root" };
 		}
 
 		default:

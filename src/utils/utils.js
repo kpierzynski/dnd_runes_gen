@@ -37,7 +37,6 @@ function getRandomInt(min, max, factor = 1) {
 }
 
 function generateRandomObject(factor = 1) {
-	console.log("factor", factor);
 	return {
 		name: uuidv4(),
 		radius: getRandomInt(150, 250, factor),
