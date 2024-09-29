@@ -14,8 +14,6 @@ dist-ssr
 
 stats.html
 
-.env
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
